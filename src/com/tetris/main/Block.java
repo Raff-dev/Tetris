@@ -79,7 +79,6 @@ class Block {
     }
 
     void rotate() {
-
         BlockType bt = this.blockType;
         int rows = bt.layout.length - 1;
         int cols = bt.layout[0].length - 1;
@@ -90,11 +89,11 @@ class Block {
             }
         }
 
-        int offsetX, offsetY = 0;
         ArrayList<Tile> backupTiles = new ArrayList<Tile>();
         for (Tile tile : tiles) backupTiles.add(tile.copy());
-        int backupX = x;
         Iterator<Tile> titer = tiles.iterator();
+        int backupX = x;
+        int offsetX, offsetY = 0;
         for (int[] row : newlayout) {
             offsetY += Tile.side;
             offsetX = 0;
@@ -103,8 +102,7 @@ class Block {
                 if (isPresent == 1) {
                     Tile t = titer.next();
                     t.setOffset(-offsetX, -offsetY);
-                    Point point = new Point(t.getX(), t.getY());
-                    boolean ocuppied = Game.handler.getOccupied().contains(point);
+                    boolean ocuppied = Tile.isOcuppied(t.getX(),t.getY());
                     boolean boundaries = t.getX() == -Tile.side || t.getX() == Game.WIDTH;
                     if (ocuppied || boundaries) {
                         if (canMoveX(1)) moveX(1);

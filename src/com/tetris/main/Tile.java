@@ -14,12 +14,10 @@ public class Tile {
     private Block block;
     private Rectangle tile;
     private int offsetX, offsetY;
-    private Rectangle point;
 
-    public Tile copy(){
-        Tile newTile = new Tile(offsetX,offsetY,block);
-        newTile.tile =tile;
-        newTile.point=point;
+    public Tile copy() {
+        Tile newTile = new Tile(offsetX, offsetY, block);
+        newTile.tile = tile;
         return newTile;
     }
 
@@ -33,30 +31,16 @@ public class Tile {
         this.offsetY = offsetY;
         tile.setFill(block.color);
     }
-    public void show(){
-        Game.window.getChildren().add(tile);
-        //---------------------------
-        point = new Rectangle(block.getX() + offsetX,
-                block.getY() + offsetY,
-                0, 0);
-
-        Color color = Handler.colors.get(new Random().nextInt(Handler.colors.size()));
-        point.setStroke(color);
-        point.setStrokeWidth(10);
-        Game.window.getChildren().add(point);
-    }
-
 
     public boolean canMove(int dir) {
         int x = getX(), y = getY();
         boolean xBorder = false, yBorder = false, ocuppied;
-        if (dir == 0){
+        if (dir == 0) {
             yBorder = y + side == Game.HEIGHT;
-            ocuppied = Game.handler.getOccupied().contains(new Point(x,y+side));
-        }
-        else{
+            ocuppied =isOcuppied(x,y+side);
+        } else {
             xBorder = (x + side) * dir == Game.WIDTH || (x + side) * dir == -side;
-            ocuppied = Game.handler.getOccupied().contains(new Point(x+side*dir,y));
+            ocuppied = isOcuppied(x + dir * side, y);
         }
         return !(ocuppied || xBorder || yBorder);
     }
@@ -66,8 +50,20 @@ public class Tile {
     }
 
     public void move() {
-        point.relocate(block.getX() + offsetX, block.getY() + offsetY);
-        tile.relocate(block.getX() + offsetX,block.getY() + offsetY);
+        tile.relocate(block.getX() + offsetX, block.getY() + offsetY);
+    }
+
+    public void show() {
+        Game.window.getChildren().add(tile);
+    }
+
+    public void remove() {
+        Game.window.getChildren().remove(tile);
+    }
+
+    public static boolean isOcuppied(int x, int y) {
+        return Game.handler.getOccupied().stream()
+                .filter(t -> t.getX() == x && t.getY() == y).count() > 0;
     }
 
     public int getX() {
@@ -78,12 +74,19 @@ public class Tile {
         return this.block.getY() + offsetY;
     }
 
-    public Node getRect() {
+    public Rectangle getRect() {
         return this.tile;
     }
 
     public void setOffset(int offsetX, int offsetY) {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
+    }
+
+    public void fall() {
+        System.out.println(tile.getY()+" "+getY());
+        this.offsetY += side;
+        this.move();
+        System.out.println(tile.getY()+" "+getY());
     }
 }

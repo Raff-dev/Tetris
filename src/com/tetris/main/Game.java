@@ -18,7 +18,7 @@ public class Game implements Runnable {
 
     private Thread thread;
     public boolean running = false;
-    private static double clockU = 5.0, clockF = 60.0;
+    private static double clockU = 3.0, clockF = 60.0;
 
     Game(BorderPane window, Scene scene) {
         Game.window = window;
@@ -96,7 +96,7 @@ public class Game implements Runnable {
             line.setStroke(Color.GREEN);
             window.getChildren().add(new Line(0, y, WIDTH, y));
         }
-        for (int x = Tile.side; x < WIDTH; x += Tile.side) {
+        for (int x = Tile.side; x <= WIDTH; x += Tile.side) {
             window.getChildren().add(new Line(x, 0, x, HEIGHT));
         }
     }
