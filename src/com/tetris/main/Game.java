@@ -12,13 +12,13 @@ public class Game implements Runnable {
 
     private static float RATIO = 14f / 9;
     static int WIDTH = 10 * Tile.side, HEIGHT = 20 * Tile.side;
-    static Rectangle gameArea =new Rectangle(0,0,WIDTH,HEIGHT);
+    static Rectangle gameArea = new Rectangle(0, 0, WIDTH, HEIGHT);
     static BorderPane window;
     static Handler handler;
 
     private Thread thread;
     public boolean running = false;
-    private static double clockU = 60.0, clockF = 60.0;
+    private static double clockU = 5.0, clockF = 60.0;
 
     Game(BorderPane window, Scene scene) {
         Game.window = window;
@@ -77,7 +77,12 @@ public class Game implements Runnable {
     }
 
     private void tick() {
-
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                handler.tick();
+            }
+        });
     }
 
     private void render() {

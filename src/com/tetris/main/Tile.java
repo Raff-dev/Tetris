@@ -16,6 +16,13 @@ public class Tile {
     private int offsetX, offsetY;
     private Rectangle point;
 
+    public Tile copy(){
+        Tile newTile = new Tile(offsetX,offsetY,block);
+        newTile.tile =tile;
+        newTile.point=point;
+        return newTile;
+    }
+
     Tile(int offsetX, int offsetY, Block block) {
         tile = new Rectangle(
                 block.getX() + offsetX,
@@ -25,8 +32,9 @@ public class Tile {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         tile.setFill(block.color);
+    }
+    public void show(){
         Game.window.getChildren().add(tile);
-
         //---------------------------
         point = new Rectangle(block.getX() + offsetX,
                 block.getY() + offsetY,
@@ -38,13 +46,6 @@ public class Tile {
         Game.window.getChildren().add(point);
     }
 
-    public void tick() {
-
-    }
-
-    public void render() {
-
-    }
 
     public boolean canMove(int dir) {
         int x = getX(), y = getY();

@@ -29,7 +29,7 @@ public class Handler {
     }
 
     public void tick() {
-        activeBlock.tick();
+        activeBlock.moveY();
     }
 
     public void render() {

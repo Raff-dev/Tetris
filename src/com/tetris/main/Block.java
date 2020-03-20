@@ -34,8 +34,11 @@ class Block {
             offsetX = 0;
             for (int isPresent : row) {
                 offsetX += Tile.side;
-                if (isPresent == 1)
-                    this.tiles.add(new Tile(-offsetX, -offsetY, this));
+                if (isPresent == 1) {
+                    Tile newTile = new Tile(-offsetX, -offsetY, this);
+                    newTile.show();
+                    this.tiles.add(newTile);
+                }
             }
         }
         line = new Line(x, y, x, y);
@@ -88,7 +91,9 @@ class Block {
         }
 
         int offsetX, offsetY = 0;
-        ArrayList<Tile> backupTiles = new ArrayList<Tile>(tiles);
+        ArrayList<Tile> backupTiles = new ArrayList<Tile>();
+        for (Tile tile : tiles) backupTiles.add(tile.copy());
+        int backupX = x;
         Iterator<Tile> titer = tiles.iterator();
         for (int[] row : newlayout) {
             offsetY += Tile.side;
@@ -106,6 +111,8 @@ class Block {
                         else {
                             System.out.println("cant, bruh");
                             tiles = backupTiles;
+                            x = backupX;
+                            for (Tile tile : this.tiles) tile.move();
                             return;
                         }
                     }
