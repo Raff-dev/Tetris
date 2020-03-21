@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Handler {
+public class GameHandler {
     private ArrayList<Tile> occupied = new ArrayList<>();
     private Block activeBlock;
     private boolean gameOver = false;
@@ -19,7 +19,7 @@ public class Handler {
             Color.rgb(255, 102, 204)
     ));
 
-    public Handler() {
+    public GameHandler() {
     }
 
     public void init() {
@@ -29,15 +29,19 @@ public class Handler {
     public void update() {
         activeBlock.moveY();
     }
-    void move(int dir){
-        if (dir==0) activeBlock.moveY();
+
+    void move(int dir) {
+        if (dir == 0) activeBlock.moveY();
         else activeBlock.moveX(dir);
     }
-    void rotate(){
+
+    void rotate() {
         activeBlock.rotate();
     }
-    void fall(){
-        while(activeBlock.canMoveY())activeBlock.moveY();
+
+    void fall() {
+        if (activeBlock.getY()>Tile.side*2)
+            while (activeBlock.canMoveY()) activeBlock.moveY();
     }
 
     void blockLanded(Block block) {
@@ -75,10 +79,6 @@ public class Handler {
     private void gameOver() {
         gameOver = true;
         System.out.println("GAME OVER");
-    }
-
-    Block getActiveBlock() {
-        return activeBlock;
     }
 
     Block.BlockType getActiveBlockBlockType() {

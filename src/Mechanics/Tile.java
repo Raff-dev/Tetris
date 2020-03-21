@@ -1,9 +1,11 @@
 package Mechanics;
 
 import Display.Game;
+import Display.Window;
 import javafx.scene.shape.Rectangle;
 
 public class Tile {
+    private static GameHandler gameHandler = Window.gameHandler;
     public static final int side = 40;
     private Block block;
     private Rectangle tile;
@@ -56,7 +58,7 @@ public class Tile {
     }
 
     static boolean isOcuppied(int x, int y) {
-        return Game.handler.getOccupied().stream().anyMatch(t -> t.getX() == x && t.getY() == y);
+        return gameHandler.getOccupied().stream().anyMatch(t -> t.getX() == x && t.getY() == y);
     }
 
     int getX() {
@@ -67,19 +69,13 @@ public class Tile {
         return this.block.getY() + offsetY;
     }
 
-    public Rectangle getRect() {
-        return this.tile;
-    }
-
     void setOffset(int offsetX, int offsetY) {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
     }
 
     void fall() {
-        System.out.println(tile.getY() + " " + getY());
         this.offsetY += side;
         this.move();
-        System.out.println(tile.getY() + " " + getY());
     }
 }

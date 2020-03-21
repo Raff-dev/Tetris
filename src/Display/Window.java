@@ -1,28 +1,27 @@
 package Display;
 
-import Display.Game;
+import Mechanics.GameHandler;
+import Mechanics.InputHandler;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.scene.shape.Rectangle;
 
 
 public class Window extends Application {
+    public static int WIDTH =700, HEIGHT = 800;
+    public static final Pane window = new Pane();
+    public static final Game game = new Game();
+    public static final GameMenu gameMenu = new GameMenu();
+    public static final GameHandler gameHandler = new GameHandler();
 
     @Override
     public void start(final Stage stage) throws Exception {
         try {
-            final BorderPane window = new BorderPane();
-            final Scene scene = new Scene(window, 700, 800);
+            final Scene scene = new Scene(window, WIDTH, HEIGHT);
             scene.getStylesheets().add("Display/style.css");
-
-            final Game game = new Game(window, scene);
+            new InputHandler(scene,gameHandler);
 
             stage.setScene(scene);
             stage.setTitle(("Tetris"));
@@ -31,7 +30,7 @@ public class Window extends Application {
                 System.exit(0);
             });
             stage.show();
-
+            gameHandler.init();
             game.start();
         } catch (final Exception e) {
             e.printStackTrace();

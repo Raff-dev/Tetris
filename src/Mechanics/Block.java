@@ -1,14 +1,16 @@
 package Mechanics;
 
 import Display.Game;
+import Display.Window;
 import javafx.scene.paint.Color;
 
 import java.util.*;
 
 class Block {
-    private ArrayList<Tile> tiles = new ArrayList<Tile>();
-    private int x, y, topY = Game.HEIGHT;
+    private ArrayList<Tile> tiles = new ArrayList<>();
+    private int x, y;
     private BlockType blockType;
+    boolean gtg = false;
     Color color;
     int colorIndex;
 
@@ -22,7 +24,7 @@ class Block {
 
     private void generateTiles() {
         do blockType = BlockType.atRandom();
-        while (blockType == Game.handler.getActiveBlockBlockType());
+        while (blockType == Window.gameHandler.getActiveBlockBlockType());
         int offsetX, offsetY = 0;
         for (int[] row : blockType.layout) {
             offsetY += Tile.side;
@@ -35,36 +37,36 @@ class Block {
                     this.tiles.add(newTile);
                 }
             }
-        }
+        } gtg=true;
     }
 
-    public void moveX(int dir) {
-        if (canMoveX(dir)) {
+     void moveX(int dir) {
+        if (canMoveX(dir) && gtg) {
             x += dir * Tile.side;
             tiles.forEach(Tile::move);
         }
     }
 
-    public void moveY() {
-        if (!canMoveY()) landed();
+     void moveY() {
+        if (!canMoveY() && gtg) landed();
         else {
             y += Tile.side;
             tiles.forEach(Tile::move);
         }
     }
 
-    public boolean canMoveY() {
+     boolean canMoveY() {
         for (Tile tile : tiles) if (tile.hasLanded()) return false;
         return true;
     }
 
-    public boolean canMoveX(int dir) {
+     private boolean canMoveX(int dir) {
         for (Tile tile : tiles) if (tile.cantMove(dir)) return false;
         return true;
     }
 
     private void landed() {
-        Game.handler.blockLanded(this);
+        Window.gameHandler.blockLanded(this);
     }
 
     void rotate() {
@@ -78,7 +80,7 @@ class Block {
             }
         }
 
-        ArrayList<Tile> backupTiles = new ArrayList<Tile>();
+        ArrayList<Tile> backupTiles = new ArrayList<>();
         for (Tile tile : tiles) backupTiles.add(tile.copy());
         Iterator<Tile> titer = tiles.iterator();
         int offsetX, offsetY = 0, backupX = x;
@@ -118,7 +120,6 @@ class Block {
         Teewee(new int[][]{{0, 1, 0}, {1, 1, 1}}),
         Smashboy(new int[][]{{1, 1}, {1, 1}});
         int[][] layout;
-        int rotation = 0;
 
         BlockType(int[][] layout) {
             this.layout = layout;
@@ -131,10 +132,10 @@ class Block {
     }
 
     private Color colorAtRandom() {
-        int prevIndex = Game.handler.getLastColorIndex();
-        do colorIndex = new Random().nextInt(Handler.colors.size());
+        int prevIndex = Window.gameHandler.getLastColorIndex();
+        do colorIndex = new Random().nextInt(GameHandler.colors.size());
         while (colorIndex == prevIndex);
-        return Handler.colors.get(colorIndex);
+        return GameHandler.colors.get(colorIndex);
     }
 
     BlockType getBlockType() {

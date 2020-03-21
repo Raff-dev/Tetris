@@ -1,11 +1,8 @@
 package Display;
 
-import Mechanics.Handler;
-import Mechanics.KeyInput;
+import Mechanics.GameHandler;
 import Mechanics.Tile;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -17,46 +14,24 @@ import static Display.RepetitiveTask.perSecond;
 public class Game implements Runnable {
 
     public static int WIDTH = 10 * Tile.side, HEIGHT = 20 * Tile.side;
-    public static final GameMenu menu = new GameMenu();
-    public static final Handler handler = new Handler();
-    public static BorderPane window;
     private static Rectangle gameArea = new Rectangle(0, 0, WIDTH, HEIGHT);
-
     private ArrayList<RepetitiveTask> tasks = new ArrayList<>();
-
-    private Thread thread;
     private boolean running = false;
+    private Thread thread;
+    private Task updateGameHandler;
 
-    Game(BorderPane window, Scene scene) {
-        Game.window = window;
-        Group g = new Group();
-        gameArea.setFill(Color.BLUEVIOLET);
-        g.getChildren().add(gameArea);
-        window.getChildren().add(g);
+    public static final Pane window = Window.window;
+    private static final GameHandler gameHandler = Window.gameHandler;
+
+    Game() {
         drawMesh();
-        handler.init();
-        new KeyInput(scene, handler);
-    }
-
-    synchronized void start() {
-        thread = new Thread(this);
-        thread.start();
-        running = true;
-    }
-
-    private synchronized void stop() {
-        try {
-            thread.join();
-            running = false;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void run() {
         double clockU = 3.0;
-        addTask(perSecond(clockU), handler::update);
+        updateGameHandler = Window.gameHandler::update;
+        addTask(perSecond(clockU),updateGameHandler);
         while (running) tasks.forEach(RepetitiveTask::execute);
         stop();
     }
@@ -73,11 +48,32 @@ public class Game implements Runnable {
         }
     }
 
+    void pause() {
+        tasks.stream().filter(t -> t.getTask() == updateGameHandler)
+                .forEach(RepetitiveTask::Pause);
+    }
+
+    void resume() {
+        tasks.stream().filter(t -> t.getTask() == updateGameHandler)
+                .forEach(RepetitiveTask::Resume);
+    }
+
     private void addTask(double seconds, Task task) {
         tasks.add(new RepetitiveTask(seconds, task));
     }
 
-    public void removeTask(RepetitiveTask task) {
-        tasks.remove(task);
+    synchronized void start() {
+        thread = new Thread(this);
+        thread.start();
+        running = true;
+    }
+
+    private synchronized void stop() {
+        try {
+            thread.join();
+            running = false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

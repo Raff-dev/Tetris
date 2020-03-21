@@ -6,6 +6,7 @@ public class RepetitiveTask implements Task {
     private Task task;
     private double seconds;
     private long timer = 0;
+    private boolean active = false;
 
     RepetitiveTask(double seconds, Task task) {
         this.task = task;
@@ -16,12 +17,28 @@ public class RepetitiveTask implements Task {
     public void execute() {
         if (timer == 0) timer = System.currentTimeMillis();
         if (System.currentTimeMillis() - timer > seconds * 1000) {
+            Platform.runLater(() -> {
+                if (active) task.execute();
+            });
             timer += 1000 * seconds;
-            Platform.runLater(() -> task.execute());
         }
     }
-     static double perSecond(double count){
-        return (double)1/count;
+
+    void Pause() {
+        this.active = false;
+    }
+
+    void Resume() {
+        this.active = true;
+        System.out.println("resumed " + active);
+    }
+
+    Task getTask() {
+        return task;
+    }
+
+    static double perSecond(double count) {
+        return (double) 1 / count;
     }
 }
 
