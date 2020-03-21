@@ -1,12 +1,9 @@
-package com.tetris.main;
+package Mechanics;
 
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,18 +19,28 @@ public class Handler {
             Color.rgb(255, 102, 204)
     ));
 
-    Handler() {
+    public Handler() {
     }
 
-    void init() {
+    public void init() {
         this.activeBlock = new Block();
     }
 
-    public void tick() {
+    public void update() {
         activeBlock.moveY();
     }
+    void move(int dir){
+        if (dir==0) activeBlock.moveY();
+        else activeBlock.moveX(dir);
+    }
+    void rotate(){
+        activeBlock.rotate();
+    }
+    void fall(){
+        while(activeBlock.canMoveY())activeBlock.moveY();
+    }
 
-    public void blockLanded(Block block) {
+    void blockLanded(Block block) {
         if (gameOver) return;
         activeBlock = new Block();
         if (!activeBlock.canMoveY()) gameOver();
@@ -42,7 +49,7 @@ public class Handler {
             occupied.add(t);
             yLookFor.add(t.getY());
         });
-        System.out.println("Lookin for: "+yLookFor);
+        System.out.println("Lookin for: " + yLookFor);
         for (int y : yLookFor) {
             Stream<Tile> rowStream = occupied.stream().filter(t -> t.getY() == y);
             List<Tile> row = rowStream.collect(Collectors.toList());
@@ -52,15 +59,15 @@ public class Handler {
                     occupied.remove(t);
                     t.remove();
                 });
-                Stream<Tile> higherStream = occupied.stream().filter(t->t.getY()<y);
+                Stream<Tile> higherStream = occupied.stream().filter(t -> t.getY() < y);
                 List<Tile> higher = higherStream.collect(Collectors.toList());
                 higher.forEach(Tile::fall);
-                System.out.println("COUNT: "+higher.size());
+                System.out.println("COUNT: " + higher.size());
             }
         }
     }
 
-    public int getLastColorIndex() {
+    int getLastColorIndex() {
         if (activeBlock == null) return -1;
         return activeBlock.colorIndex;
     }
@@ -70,16 +77,16 @@ public class Handler {
         System.out.println("GAME OVER");
     }
 
-    public Block getActiveBlock() {
+    Block getActiveBlock() {
         return activeBlock;
     }
 
-    public Block.BlockType getActiveBlockBlockType() {
+    Block.BlockType getActiveBlockBlockType() {
         if (activeBlock == null) return null;
         return activeBlock.getBlockType();
     }
 
-    public ArrayList<Tile> getOccupied() {
+    ArrayList<Tile> getOccupied() {
         return occupied;
     }
 }

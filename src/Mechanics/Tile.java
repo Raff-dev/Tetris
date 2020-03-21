@@ -1,21 +1,15 @@
-package com.tetris.main;
+package Mechanics;
 
-import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
+import Display.Game;
 import javafx.scene.shape.Rectangle;
-import org.w3c.dom.css.Rect;
-
-import java.awt.*;
-import java.util.Random;
 
 public class Tile {
-    static final int side = 40;
+    public static final int side = 40;
     private Block block;
     private Rectangle tile;
     private int offsetX, offsetY;
 
-    public Tile copy() {
+    Tile copy() {
         Tile newTile = new Tile(offsetX, offsetY, block);
         newTile.tile = tile;
         return newTile;
@@ -32,45 +26,44 @@ public class Tile {
         tile.setFill(block.color);
     }
 
-    public boolean canMove(int dir) {
+    boolean cantMove(int dir) {
         int x = getX(), y = getY();
         boolean xBorder = false, yBorder = false, ocuppied;
         if (dir == 0) {
             yBorder = y + side == Game.HEIGHT;
-            ocuppied =isOcuppied(x,y+side);
+            ocuppied = isOcuppied(x, y + side);
         } else {
             xBorder = (x + side) * dir == Game.WIDTH || (x + side) * dir == -side;
             ocuppied = isOcuppied(x + dir * side, y);
         }
-        return !(ocuppied || xBorder || yBorder);
+        return ocuppied || xBorder || yBorder;
     }
 
-    public boolean hasLanded() {
-        return !canMove(0);
+    boolean hasLanded() {
+        return cantMove(0);
     }
 
-    public void move() {
+    void move() {
         tile.relocate(block.getX() + offsetX, block.getY() + offsetY);
     }
 
-    public void show() {
+    void show() {
         Game.window.getChildren().add(tile);
     }
 
-    public void remove() {
+    void remove() {
         Game.window.getChildren().remove(tile);
     }
 
-    public static boolean isOcuppied(int x, int y) {
-        return Game.handler.getOccupied().stream()
-                .filter(t -> t.getX() == x && t.getY() == y).count() > 0;
+    static boolean isOcuppied(int x, int y) {
+        return Game.handler.getOccupied().stream().anyMatch(t -> t.getX() == x && t.getY() == y);
     }
 
-    public int getX() {
+    int getX() {
         return this.block.getX() + offsetX;
     }
 
-    public int getY() {
+    int getY() {
         return this.block.getY() + offsetY;
     }
 
@@ -78,15 +71,15 @@ public class Tile {
         return this.tile;
     }
 
-    public void setOffset(int offsetX, int offsetY) {
+    void setOffset(int offsetX, int offsetY) {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
     }
 
-    public void fall() {
-        System.out.println(tile.getY()+" "+getY());
+    void fall() {
+        System.out.println(tile.getY() + " " + getY());
         this.offsetY += side;
         this.move();
-        System.out.println(tile.getY()+" "+getY());
+        System.out.println(tile.getY() + " " + getY());
     }
 }

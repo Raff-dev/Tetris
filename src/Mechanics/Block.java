@@ -1,11 +1,8 @@
-package com.tetris.main;
+package Mechanics;
 
+import Display.Game;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.transform.MatrixType;
 
-import java.awt.*;
 import java.util.*;
 
 class Block {
@@ -14,8 +11,6 @@ class Block {
     private BlockType blockType;
     Color color;
     int colorIndex;
-    Line line;
-
 
     Block() {
         this.x = Game.WIDTH / 2 + Tile.side;
@@ -41,17 +36,12 @@ class Block {
                 }
             }
         }
-        line = new Line(x, y, x, y);
-        line.setStroke(Color.RED);
-        line.setStrokeWidth(10);
-        Game.window.getChildren().add(line);
     }
 
     public void moveX(int dir) {
         if (canMoveX(dir)) {
             x += dir * Tile.side;
-            line.relocate(x, y);
-            for (Tile tile : this.tiles) tile.move();
+            tiles.forEach(Tile::move);
         }
     }
 
@@ -59,8 +49,7 @@ class Block {
         if (!canMoveY()) landed();
         else {
             y += Tile.side;
-            line.relocate(x, y);
-            for (Tile tile : this.tiles) tile.move();
+            tiles.forEach(Tile::move);
         }
     }
 
@@ -70,7 +59,7 @@ class Block {
     }
 
     public boolean canMoveX(int dir) {
-        for (Tile tile : tiles) if (!tile.canMove(dir)) return false;
+        for (Tile tile : tiles) if (tile.cantMove(dir)) return false;
         return true;
     }
 
@@ -92,8 +81,7 @@ class Block {
         ArrayList<Tile> backupTiles = new ArrayList<Tile>();
         for (Tile tile : tiles) backupTiles.add(tile.copy());
         Iterator<Tile> titer = tiles.iterator();
-        int backupX = x;
-        int offsetX, offsetY = 0;
+        int offsetX, offsetY = 0, backupX = x;
         for (int[] row : newlayout) {
             offsetY += Tile.side;
             offsetX = 0;
@@ -102,7 +90,7 @@ class Block {
                 if (isPresent == 1) {
                     Tile t = titer.next();
                     t.setOffset(-offsetX, -offsetY);
-                    boolean ocuppied = Tile.isOcuppied(t.getX(),t.getY());
+                    boolean ocuppied = Tile.isOcuppied(t.getX(), t.getY());
                     boolean boundaries = t.getX() == -Tile.side || t.getX() == Game.WIDTH;
                     if (ocuppied || boundaries) {
                         if (canMoveX(1)) moveX(1);
@@ -119,12 +107,6 @@ class Block {
             }
         }
         bt.layout = newlayout;
-    }
-
-    public void tick() {
-    }
-
-    public void render() {
     }
 
     enum BlockType {
@@ -148,26 +130,26 @@ class Block {
         }
     }
 
-    public Color colorAtRandom() {
+    private Color colorAtRandom() {
         int prevIndex = Game.handler.getLastColorIndex();
         do colorIndex = new Random().nextInt(Handler.colors.size());
         while (colorIndex == prevIndex);
         return Handler.colors.get(colorIndex);
     }
 
-    public BlockType getBlockType() {
+    BlockType getBlockType() {
         return blockType;
     }
 
-    public ArrayList<Tile> getTiles() {
+    ArrayList<Tile> getTiles() {
         return tiles;
     }
 
-    public int getX() {
+    int getX() {
         return this.x;
     }
 
-    public int getY() {
+    int getY() {
         return this.y;
     }
 }
