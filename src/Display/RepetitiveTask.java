@@ -30,16 +30,16 @@ public class RepetitiveTask implements Task {
 
     void Resume() {
         this.active = true;
-        System.out.println("resumed " + active);
     }
 
     Task getTask() {
         return task;
     }
 
-    void setSeconds(double seconds){
-        this.seconds=seconds;
+    void setSeconds(double seconds) {
+        this.seconds = seconds;
     }
+
     static double perSecond(double count) {
         return (double) 1 / count;
     }

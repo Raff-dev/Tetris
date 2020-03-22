@@ -5,12 +5,10 @@ import Display.Task;
 import Display.Window;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 
 import java.util.*;
 
 import static Display.GameMenu.Mode.PLAY;
-import static Display.GameMenu.Mode.START;
 import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 

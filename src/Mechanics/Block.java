@@ -116,9 +116,9 @@ class Block {
         Blue_Ricky(new int[][]{{1, 0, 0}, {1, 1, 1}}),
         Cleveland_Z(new int[][]{{1, 1, 0}, {0, 1, 1}}),
         Rhode_Island_Z(new int[][]{{0, 1, 1}, {1, 1, 0}}),
-        Hero(new int[][]{{1, 1, 1, 1}}),
-        Teewee(new int[][]{{0, 1, 0}, {1, 1, 1}}),
         Smashboy(new int[][]{{1, 1}, {1, 1}});
+        Hero(new int[][]{{1, 1, 1, 1}}),
+        Teewee(new int[][]{{0, 1, 0}, {1, 1, 1}});
         int[][] layout;
 
         BlockType(int[][] layout) {

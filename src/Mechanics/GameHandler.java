@@ -1,5 +1,8 @@
 package Mechanics;
 
+import Display.Window;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
 import java.util.*;
@@ -8,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GameHandler {
+    private static final ObservableList<Node> window = Window.window.getChildren();
     private ArrayList<Tile> occupied = new ArrayList<>();
     private Block activeBlock;
     private boolean gameOver = false;
@@ -40,7 +44,7 @@ public class GameHandler {
     }
 
     void fall() {
-        if (activeBlock.getY()>Tile.side*2)
+        if (activeBlock.getY() > Tile.side * 2)
             while (activeBlock.canMoveY()) activeBlock.moveY();
     }
 
@@ -48,26 +52,31 @@ public class GameHandler {
         if (gameOver) return;
         activeBlock = new Block();
         if (!activeBlock.canMoveY()) gameOver();
-        HashSet<Integer> yLookFor = new HashSet<>();
+        TreeSet<Integer> yLookFor = new TreeSet<>();
         block.getTiles().forEach(t -> {
             occupied.add(t);
             yLookFor.add(t.getY());
         });
-        System.out.println("Lookin for: " + yLookFor);
-        for (int y : yLookFor) {
+        clearLines(yLookFor);
+    }
+
+    private void clearLines(TreeSet<Integer> yLookFor) {
+        List<Tile> toRemove = new ArrayList<>();
+        TreeSet<Integer> yDelete = new TreeSet<>();
+        yLookFor.descendingSet().forEach(y -> {
             Stream<Tile> rowStream = occupied.stream().filter(t -> t.getY() == y);
             List<Tile> row = rowStream.collect(Collectors.toList());
-            if (row.size() == 10) {
-                System.out.println("REEEEEE 1000000");
-                row.forEach(t -> {
-                    occupied.remove(t);
-                    t.remove();
-                });
-                Stream<Tile> higherStream = occupied.stream().filter(t -> t.getY() < y);
-                List<Tile> higher = higherStream.collect(Collectors.toList());
-                higher.forEach(Tile::fall);
-                System.out.println("COUNT: " + higher.size());
+            if (row.size()==10) {
+                toRemove.addAll(row);
+                yDelete.add(y);
             }
+        });
+        if (toRemove.size() > 0) {
+            toRemove.forEach(Tile::remove);
+            yDelete.forEach(y -> {
+                occupied.stream().filter(t -> t.getY() < y).forEach(Tile::fall);
+                System.out.println("ylookfor " + y);
+            });
         }
     }
 
@@ -79,6 +88,12 @@ public class GameHandler {
     private void gameOver() {
         gameOver = true;
         System.out.println("GAME OVER");
+    }
+
+    public void reset() {
+        activeBlock.getTiles().forEach(t -> window.remove(t.getTile()));
+        occupied.removeIf(t -> window.removeAll(t.getTile()));
+        init();
     }
 
     Block.BlockType getActiveBlockBlockType() {

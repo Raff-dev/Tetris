@@ -80,7 +80,7 @@ public class GameMenu extends VBox {
     }
 
     public void toggle() {
-        System.out.println(mode);
+        //put start somewhere else
         if (mode == Mode.START) start();
         else if (mode == Mode.PAUSE) play();
         else if (mode == Mode.PLAY) pause();
@@ -113,7 +113,6 @@ public class GameMenu extends VBox {
         selection += dir;
         if (selection < 0 || selection == buttons.size())
             selection = Math.max(0, -dir * (buttons.size() - 1));
-        System.out.println(selection);
         buttons.get(selection).setHovered();
 
     }
