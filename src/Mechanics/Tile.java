@@ -8,26 +8,13 @@ public class Tile {
     private static GameHandler gameHandler = Window.gameHandler;
     public static final int side = 40;
     private Block block;
-
-
-    private Rectangle tile = new Rectangle();
+    private Rectangle tile = new Rectangle(side, side);
     private int offsetX, offsetY;
 
-    Tile copy() {
-        Tile newTile = new Tile(offsetX, offsetY, block);
-        newTile.tile = tile;
-        return newTile;
-    }
-
     Tile(int offsetX, int offsetY, Block block) {
-        tile.setX(block.getX() + offsetX);
-        tile.setY(block.getY() + offsetY);
-        tile.setWidth(side);
-        tile.setHeight(side);
-        this.block = block;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
-        tile.setFill(block.color);
+        setBlock(block);
     }
 
     boolean cantMove(int dir) {
@@ -47,6 +34,10 @@ public class Tile {
         return cantMove(0);
     }
 
+    static boolean isOcuppied(int x, int y) {
+        return gameHandler.getOccupied().stream().anyMatch(t -> t.getX() == x && t.getY() == y);
+    }
+
     void move() {
         tile.relocate(block.getX() + offsetX, block.getY() + offsetY);
     }
@@ -56,22 +47,28 @@ public class Tile {
         this.move();
     }
 
-    void show() {
-        Game.window.getChildren().add(tile);
-    }
-
     void remove() {
         Game.window.getChildren().remove(tile);
         gameHandler.getOccupied().remove(this);
     }
 
-    static boolean isOcuppied(int x, int y) {
-        return gameHandler.getOccupied().stream().anyMatch(t -> t.getX() == x && t.getY() == y);
-    }
 
     void setOffset(int offsetX, int offsetY) {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
+    }
+
+    private void setBlock(Block block) {
+        this.block = block;
+        tile.setFill(block.getColor());
+        tile.setX(block.getX() + offsetX);
+        tile.setY(block.getY() + offsetY);
+    }
+
+    Tile copy() {
+        Tile newTile = new Tile(offsetX, offsetY, block);
+        newTile.tile = tile;
+        return newTile;
     }
 
     int getX() {
@@ -82,7 +79,7 @@ public class Tile {
         return this.block.getY() + offsetY;
     }
 
-    public Rectangle getTile() {
+    Rectangle getTile() {
         return tile;
     }
 }

@@ -1,6 +1,7 @@
 package Mechanics;
 
 import Display.Window;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -14,6 +15,7 @@ public class GameHandler {
     private static final ObservableList<Node> window = Window.window.getChildren();
     private ArrayList<Tile> occupied = new ArrayList<>();
     private Block activeBlock;
+    private Block nextblock;
     private boolean gameOver = false;
     static ArrayList<Color> colors = new ArrayList<>(Arrays.asList(
             Color.rgb(102, 153, 255),
@@ -27,7 +29,10 @@ public class GameHandler {
     }
 
     public void init() {
-        this.activeBlock = new Block();
+        activeBlock = new Block();
+        activeBlock.show();
+        nextblock = new Block();
+        Platform.runLater(()->Window.sideBar.setNextBlock(nextblock));
     }
 
     public void update() {
@@ -51,6 +56,7 @@ public class GameHandler {
     void blockLanded(Block block) {
         if (gameOver) return;
         activeBlock = new Block();
+        activeBlock.show();
         if (!activeBlock.canMoveY()) gameOver();
         TreeSet<Integer> yLookFor = new TreeSet<>();
         block.getTiles().forEach(t -> {

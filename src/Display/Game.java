@@ -1,27 +1,23 @@
 package Display;
 
-import Mechanics.GameHandler;
 import Mechanics.Tile;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 
 import static Display.RepetitiveTask.perSecond;
 
 public class Game implements Runnable {
-    double clockU = 3.0;
+    private double clockU = 3.0;
     public static int WIDTH = 10 * Tile.side, HEIGHT = 20 * Tile.side;
-    private static Rectangle gameArea = new Rectangle(0, 0, WIDTH, HEIGHT);
     private ArrayList<RepetitiveTask> tasks = new ArrayList<>();
     private boolean running = false;
     private Thread thread;
     private Task updateGameHandler;
 
     public static final Pane window = Window.window;
-    private static final GameHandler gameHandler = Window.gameHandler;
 
     Game() {
         drawMesh();
@@ -78,7 +74,7 @@ public class Game implements Runnable {
 
     void difficulty(int level) {
         tasks.stream().filter(t -> t.getTask() == updateGameHandler)
-                .forEach(t -> t.setSeconds(perSecond(clockU + level*1.5)));
-        System.out.println("Diff: " + (clockU + level*1.5));
+                .forEach(t -> t.setSeconds(perSecond(clockU + level * 1.5)));
+        System.out.println("Diff: " + (clockU + level * 1.5));
     }
 }

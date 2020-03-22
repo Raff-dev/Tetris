@@ -50,7 +50,6 @@ public class GameMenu extends VBox {
         Text text = new Text();
         Rectangle bg = new Rectangle();
 
-
         MenuItem(String name, Task task) {
             this.task = task;
             text.setText(name);
