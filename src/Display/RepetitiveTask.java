@@ -37,6 +37,9 @@ public class RepetitiveTask implements Task {
         return task;
     }
 
+    void setSeconds(double seconds){
+        this.seconds=seconds;
+    }
     static double perSecond(double count) {
         return (double) 1 / count;
     }

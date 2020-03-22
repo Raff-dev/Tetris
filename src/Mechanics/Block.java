@@ -10,7 +10,7 @@ class Block {
     private ArrayList<Tile> tiles = new ArrayList<>();
     private int x, y;
     private BlockType blockType;
-    boolean gtg = false;
+    private boolean gtg = false;
     Color color;
     int colorIndex;
 

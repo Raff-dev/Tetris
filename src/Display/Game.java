@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import static Display.RepetitiveTask.perSecond;
 
 public class Game implements Runnable {
-
+    double clockU = 3.0;
     public static int WIDTH = 10 * Tile.side, HEIGHT = 20 * Tile.side;
     private static Rectangle gameArea = new Rectangle(0, 0, WIDTH, HEIGHT);
     private ArrayList<RepetitiveTask> tasks = new ArrayList<>();
@@ -29,9 +29,8 @@ public class Game implements Runnable {
 
     @Override
     public void run() {
-        double clockU = 3.0;
         updateGameHandler = Window.gameHandler::update;
-        addTask(perSecond(clockU),updateGameHandler);
+        addTask(perSecond(clockU), updateGameHandler);
         while (running) tasks.forEach(RepetitiveTask::execute);
         stop();
     }
@@ -75,5 +74,11 @@ public class Game implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    void difficulty(int level) {
+        tasks.stream().filter(t -> t.getTask() == updateGameHandler)
+                .forEach(t -> t.setSeconds(perSecond(clockU + level*1.5)));
+        System.out.println("Diff: " + (clockU + level*1.5));
     }
 }

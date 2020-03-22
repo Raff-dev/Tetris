@@ -9,7 +9,10 @@ import javafx.scene.input.KeyEvent;
 
 import java.util.*;
 
+import static Display.GameMenu.Mode.PLAY;
+import static Display.GameMenu.Mode.START;
 import static javafx.scene.input.KeyCode.*;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 
 public class InputHandler {
@@ -22,14 +25,12 @@ public class InputHandler {
     public InputHandler(Scene scene, GameHandler gameHandler) {
         assignBindings(gameHandler);
 
-        scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+        scene.addEventFilter(KEY_PRESSED, event -> {
             if (codes.contains(event.getCode())) {
-                if (Window.gameMenu.isIsopen())
-                    menuBindings.get(
-                            event.getCode())
-                            .execute();
-                else gameBindings.get(event.getCode()).execute();
-            } else System.out.println(event.getCode());
+                if (Window.gameMenu.getMode() == PLAY)
+                    gameBindings.get(event.getCode()).execute();
+                else menuBindings.get(event.getCode()).execute();
+            }
         });
     }
 
@@ -43,10 +44,9 @@ public class InputHandler {
         };
         Task[] menuActions = {
                 gameMenu::toggle,
-                GameMenu::select, GameMenu::select,
-                () -> GameMenu.switchSelection(true),
-                () -> GameMenu.switchSelection(false),
-                ()->{},()->{}
+                gameMenu::select, gameMenu::select,
+                () -> gameMenu.switchSelection(-1),
+                () -> gameMenu.switchSelection(1),
         };
         final Iterator citer1 = codes.iterator(), citer2 = codes.iterator();
         Arrays.stream(gameActions).forEach(action -> gameBindings.put(citer1.next(), action));

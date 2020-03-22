@@ -8,7 +8,9 @@ public class Tile {
     private static GameHandler gameHandler = Window.gameHandler;
     public static final int side = 40;
     private Block block;
-    private Rectangle tile;
+
+
+    private Rectangle tile = new Rectangle();
     private int offsetX, offsetY;
 
     Tile copy() {
@@ -18,10 +20,10 @@ public class Tile {
     }
 
     Tile(int offsetX, int offsetY, Block block) {
-        tile = new Rectangle(
-                block.getX() + offsetX,
-                block.getY() + offsetY,
-                side, side);
+        tile.setX(block.getX() + offsetX);
+        tile.setY(block.getY() + offsetY);
+        tile.setWidth(side);
+        tile.setHeight(side);
         this.block = block;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
@@ -49,16 +51,27 @@ public class Tile {
         tile.relocate(block.getX() + offsetX, block.getY() + offsetY);
     }
 
+    void fall() {
+        this.offsetY += side;
+        this.move();
+    }
+
     void show() {
         Game.window.getChildren().add(tile);
     }
 
     void remove() {
         Game.window.getChildren().remove(tile);
+        gameHandler.getOccupied().remove(this);
     }
 
     static boolean isOcuppied(int x, int y) {
         return gameHandler.getOccupied().stream().anyMatch(t -> t.getX() == x && t.getY() == y);
+    }
+
+    void setOffset(int offsetX, int offsetY) {
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
     }
 
     int getX() {
@@ -69,13 +82,7 @@ public class Tile {
         return this.block.getY() + offsetY;
     }
 
-    void setOffset(int offsetX, int offsetY) {
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-    }
-
-    void fall() {
-        this.offsetY += side;
-        this.move();
+    public Rectangle getTile() {
+        return tile;
     }
 }
