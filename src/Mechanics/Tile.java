@@ -2,6 +2,7 @@ package Mechanics;
 
 import Display.Game;
 import Display.Window;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
 public class Tile {
@@ -38,7 +39,7 @@ public class Tile {
         return gameHandler.getOccupied().stream().anyMatch(t -> t.getX() == x && t.getY() == y);
     }
 
-    void move() {
+    public void move() {
         tile.relocate(block.getX() + offsetX, block.getY() + offsetY);
     }
 
@@ -47,11 +48,10 @@ public class Tile {
         this.move();
     }
 
-    void remove() {
-        Game.window.getChildren().remove(tile);
+    void removeFrom(Pane pane) {
+        pane.getChildren().remove(tile);
         gameHandler.getOccupied().remove(this);
     }
-
 
     void setOffset(int offsetX, int offsetY) {
         this.offsetX = offsetX;
@@ -71,7 +71,7 @@ public class Tile {
         return newTile;
     }
 
-    int getX() {
+    public int getX() {
         return this.block.getX() + offsetX;
     }
 

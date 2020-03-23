@@ -1,53 +1,50 @@
 package Mechanics;
 
-import Display.GameMenu;
-import Display.Task;
-import Display.Window;
-import javafx.scene.Scene;
+import static javafx.scene.input.KeyCode.*;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
+import static Display.GameMenu.Mode.PLAY;
+import static Display.Window.*;
+
 import javafx.scene.input.KeyCode;
+import Display.Task;
 
 import java.util.*;
 
-import static Display.GameMenu.Mode.PLAY;
-import static javafx.scene.input.KeyCode.*;
-import static javafx.scene.input.KeyEvent.KEY_PRESSED;
-
-
 public class InputHandler {
-    private static final GameMenu gameMenu = Window.gameMenu;
     private Map<Object, Task> gameBindings = new HashMap<>();
     private Map<Object, Task> menuBindings = new HashMap<>();
-    private List<KeyCode> codes = new ArrayList<>(
-            Arrays.asList(ESCAPE, SPACE, ENTER, UP, DOWN, LEFT, RIGHT));
+    private List<KeyCode> codes;
 
-    public InputHandler(Scene scene, GameHandler gameHandler) {
-        assignBindings(gameHandler);
-
+    public InputHandler() {
+        assignBindings();
         scene.addEventFilter(KEY_PRESSED, event -> {
-            if (codes.contains(event.getCode())) {
-                if (Window.gameMenu.getMode() == PLAY)
-                    gameBindings.get(event.getCode()).execute();
-                else menuBindings.get(event.getCode()).execute();
-            }
+            if (gameMenu.getMode() == PLAY && gameBindings.containsKey(event.getCode()))
+                gameBindings.get(event.getCode()).execute();
+            else if (menuBindings.containsKey(event.getCode()))
+                menuBindings.get(event.getCode()).execute();
         });
     }
 
-    private void assignBindings(GameHandler gameHandler) {
-        Task[] gameActions = {
-                gameMenu::toggle, gameHandler::fall,
-                gameHandler::fall, gameHandler::rotate,
+    private void assignBindings() {
+        codes = new ArrayList<>(Arrays.asList(
+                ESCAPE, SPACE, ENTER, UP, DOWN, LEFT, RIGHT));
+
+        List<Task> gameActions = new ArrayList<>(Arrays.asList(
+                gameMenu::toggle,
+                () -> gameHandler.fall(),
+                () -> gameHandler.fall(),
+                () -> gameHandler.rotate(),
                 () -> gameHandler.move(0),
                 () -> gameHandler.move(-1),
                 () -> gameHandler.move(1)
-        };
-        Task[] menuActions = {
-                gameMenu::toggle,
-                gameMenu::select, gameMenu::select,
+        ));
+        List<Task> menuActions = new ArrayList<>(Arrays.asList(
+                gameMenu::toggle, gameMenu::select, gameMenu::select,
                 () -> gameMenu.switchSelection(-1),
-                () -> gameMenu.switchSelection(1),
-        };
+                () -> gameMenu.switchSelection(1)
+        ));
         final Iterator citer1 = codes.iterator(), citer2 = codes.iterator();
-        Arrays.stream(gameActions).forEach(action -> gameBindings.put(citer1.next(), action));
-        Arrays.stream(menuActions).forEach(action -> menuBindings.put(citer2.next(), action));
+        gameActions.forEach(action -> gameBindings.put(citer1.next(), action));
+        menuActions.forEach(action -> menuBindings.put(citer2.next(), action));
     }
 }

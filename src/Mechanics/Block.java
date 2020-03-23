@@ -2,6 +2,7 @@ package Mechanics;
 
 import Display.Game;
 import Display.Window;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import java.util.*;
@@ -21,12 +22,11 @@ public class Block {
         this.color = color;
         this.blockType = blockType;
         tiles.addAll(generateTiles(this));
-
     }
 
     Block() {
         this.x = Game.WIDTH / 2 + side;
-        this.y = -side;
+        this.y = -0;
         this.color = colorAtRandom();
         do blockType = BlockType.atRandom();
         while (blockType == Window.gameHandler.getActiveBlockBlockType());
@@ -39,12 +39,12 @@ public class Block {
         for (int row = 0; row < block.blockType.layout.length; row++)
             for (int col = 0; col < block.blockType.layout[0].length; col++)
                 if (block.blockType.layout[row][col] == 1)
-                    newTiles.add(new Tile(-col * side, -row * side, block));
+                    newTiles.add(new Tile(-(col+1) * side, -(row+1)* side, block));
         return newTiles;
     }
 
-    public void show() {
-        tiles.forEach(t -> Window.window.getChildren().add(t.getTile()));
+    public void showOn(Pane pane) {
+        tiles.forEach(t -> pane.getChildren().add(t.getTile()));
         isShown = true;
     }
 
@@ -124,7 +124,7 @@ public class Block {
         Cleveland_Z(new int[][]{{1, 1, 0}, {0, 1, 1}}),
         Rhode_Island_Z(new int[][]{{0, 1, 1}, {1, 1, 0}}),
         Smashboy(new int[][]{{1, 1}, {1, 1}}),
-        Hero(new int[][]{{1}, {1}, {1}, {1}}),
+        Hero(new int[][]{{1, 1, 1, 1}}),
         Teewee(new int[][]{{0, 1, 0}, {1, 1, 1}});
         int[][] layout;
 
@@ -136,10 +136,16 @@ public class Block {
             Random random = new Random();
             return BlockType.values()[random.nextInt(BlockType.values().length)];
         }
+        public int width(){
+            return this.layout[0].length*side;
+        }
+        public int height(){
+            return this.layout.length*side;
+        }
     }
 
-    public void remove() {
-        tiles.forEach(Tile::remove);
+    public void removeFrom(Pane pane) {
+        tiles.forEach(t-> t.removeFrom(pane));
     }
 
     private Color colorAtRandom() {
@@ -153,7 +159,7 @@ public class Block {
         return this.blockType;
     }
 
-    ArrayList<Tile> getTiles() {
+    public ArrayList<Tile> getTiles() {
         return this.tiles;
     }
 
@@ -161,7 +167,7 @@ public class Block {
         return this.color;
     }
 
-    int getX() {
+    public int getX() {
         return this.x;
     }
 

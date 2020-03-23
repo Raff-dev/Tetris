@@ -1,10 +1,9 @@
 package Mechanics;
 
 import Display.Window;
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import static Display.Window.*;
 
 import java.util.*;
 import java.util.List;
@@ -12,11 +11,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GameHandler {
-    private static final ObservableList<Node> window = Window.window.getChildren();
     private ArrayList<Tile> occupied = new ArrayList<>();
+    private boolean gameOver = false;
     private Block activeBlock;
     private Block nextblock;
-    private boolean gameOver = false;
+    private int score,level,lines;
     static ArrayList<Color> colors = new ArrayList<>(Arrays.asList(
             Color.rgb(102, 153, 255),
             Color.rgb(153, 255, 102),
@@ -25,14 +24,11 @@ public class GameHandler {
             Color.rgb(255, 102, 204)
     ));
 
-    public GameHandler() {
-    }
-
     public void init() {
         activeBlock = new Block();
-        activeBlock.show();
+        activeBlock.showOn(window);
         nextblock = new Block();
-        Platform.runLater(()->Window.sideBar.setNextBlock(nextblock));
+        Window.sideBar.setNextBlock(nextblock);
     }
 
     public void update() {
@@ -55,8 +51,10 @@ public class GameHandler {
 
     void blockLanded(Block block) {
         if (gameOver) return;
-        activeBlock = new Block();
-        activeBlock.show();
+        activeBlock = nextblock;
+        activeBlock.showOn(window);
+        nextblock = new Block();
+        Window.sideBar.setNextBlock(nextblock);
         if (!activeBlock.canMoveY()) gameOver();
         TreeSet<Integer> yLookFor = new TreeSet<>();
         block.getTiles().forEach(t -> {
@@ -78,12 +76,21 @@ public class GameHandler {
             }
         });
         if (toRemove.size() > 0) {
-            toRemove.forEach(Tile::remove);
+            toRemove.forEach(t->t.removeFrom(window));
             yDelete.forEach(y -> {
                 occupied.stream().filter(t -> t.getY() < y).forEach(Tile::fall);
                 System.out.println("ylookfor " + y);
             });
+            updateSideBar(yDelete.size());
+
+
         }
+    }
+    private void updateSideBar(int count){
+        lines+=count;
+        score += 100*count*(level + count*0.5);
+        if (lines%10==0) game.increaseLevel(++level);
+        sideBar.setValues(score,lines,level);
     }
 
     int getLastColorIndex() {
@@ -97,8 +104,8 @@ public class GameHandler {
     }
 
     public void reset() {
-        activeBlock.getTiles().forEach(t -> window.remove(t.getTile()));
-        occupied.removeIf(t -> window.removeAll(t.getTile()));
+        activeBlock.getTiles().forEach(t -> window.getChildren().remove(t.getTile()));
+        occupied.removeIf(t -> window.getChildren().removeAll(t.getTile()));
         init();
     }
 
@@ -109,5 +116,10 @@ public class GameHandler {
 
     ArrayList<Tile> getOccupied() {
         return occupied;
+    }
+
+    public void setLevel(int level){
+        this.level = level;
+        System.out.println("level:" +level);
     }
 }

@@ -1,34 +1,34 @@
 package Display;
 
+import Mechanics.GameHandler;
 import Mechanics.Tile;
-import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
+import java.util.Hashtable;
 
 import static Display.RepetitiveTask.perSecond;
+import static Display.Window.*;
 
 public class Game implements Runnable {
-    private double clockU = 3.0;
     public static int WIDTH = 10 * Tile.side, HEIGHT = 20 * Tile.side;
-    private ArrayList<RepetitiveTask> tasks = new ArrayList<>();
-    private boolean running = false;
-    private Thread thread;
-    private Task updateGameHandler;
+    private Hashtable<String, RepetitiveTask> gameTasks = new Hashtable<>();
+    private Hashtable<String, RepetitiveTask> menuTasks = new Hashtable<>();
 
-    public static final Pane window = Window.window;
-
-    Game() {
+    public void init() {
         drawMesh();
+        sideBar.init();
+        gameHandler.init();
+        addTask("updateGameHandler", perSecond(3.0), gameHandler::update, true);
     }
 
     @Override
     public void run() {
-        updateGameHandler = Window.gameHandler::update;
-        addTask(perSecond(clockU), updateGameHandler);
-        while (running) tasks.forEach(RepetitiveTask::execute);
-        stop();
+        System.out.println("runnig");
+        while (true) {
+            gameTasks.forEach((n, t) -> t.execute());
+            menuTasks.forEach((n, t) -> t.execute());
+        }
     }
 
     private void drawMesh() {
@@ -44,37 +44,29 @@ public class Game implements Runnable {
     }
 
     void pause() {
-        tasks.stream().filter(t -> t.getTask() == updateGameHandler)
-                .forEach(RepetitiveTask::Pause);
+        gameTasks.forEach((n, t) -> t.Stop());
+        menuTasks.forEach((n, t) -> t.Start());
     }
 
     void resume() {
-        tasks.stream().filter(t -> t.getTask() == updateGameHandler)
-                .forEach(RepetitiveTask::Resume);
+        menuTasks.forEach((n, t) -> t.Stop());
+        gameTasks.forEach((n, t) -> t.Start());
     }
 
-    private void addTask(double seconds, Task task) {
-        tasks.add(new RepetitiveTask(seconds, task));
+    public void addTask(String name, RepetitiveTask rt, boolean game) {
+        if (game) gameTasks.put(name, rt);
+        else menuTasks.put(name, rt);
     }
 
-    synchronized void start() {
-        thread = new Thread(this);
-        thread.start();
-        running = true;
+    public void addTask(String name, double seconds, Task task, boolean game) {
+        RepetitiveTask rt = new RepetitiveTask(seconds, task);
+        if (game) gameTasks.put(name, rt);
+        else menuTasks.put(name, rt);
     }
 
-    private synchronized void stop() {
-        try {
-            thread.join();
-            running = false;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    void difficulty(int level) {
-        tasks.stream().filter(t -> t.getTask() == updateGameHandler)
-                .forEach(t -> t.setSeconds(perSecond(clockU + level * 1.5)));
-        System.out.println("Diff: " + (clockU + level * 1.5));
+    public void increaseLevel(int level) {
+        RepetitiveTask rt = gameTasks.get("updateGameHandler");
+        rt.setSeconds(perSecond(3 + level));
+        gameHandler.setLevel(level);
     }
 }
