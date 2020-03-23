@@ -2,7 +2,7 @@ package Mechanics;
 
 import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
-import static Display.GameMenu.Mode.PLAY;
+import static Display.GameMenu.Mode.RUNNING;
 import static Display.Window.*;
 
 import javafx.scene.input.KeyCode;
@@ -18,7 +18,7 @@ public class InputHandler {
     public InputHandler() {
         assignBindings();
         scene.addEventFilter(KEY_PRESSED, event -> {
-            if (gameMenu.getMode() == PLAY && gameBindings.containsKey(event.getCode()))
+            if (gameMenu.getMode() == RUNNING && gameBindings.containsKey(event.getCode()))
                 gameBindings.get(event.getCode()).execute();
             else if (menuBindings.containsKey(event.getCode()))
                 menuBindings.get(event.getCode()).execute();
@@ -39,7 +39,7 @@ public class InputHandler {
                 () -> gameHandler.move(1)
         ));
         List<Task> menuActions = new ArrayList<>(Arrays.asList(
-                gameMenu::toggle, gameMenu::select, gameMenu::select,
+                gameMenu::toggle, ()->gameMenu.select(), ()->gameMenu.select(),
                 () -> gameMenu.switchSelection(-1),
                 () -> gameMenu.switchSelection(1)
         ));

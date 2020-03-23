@@ -27,7 +27,7 @@ public class Window extends Application {
             System.exit(0);
         });
         stage.show();
-
+        gameMenu.init();
         new Thread(game).start();
     }
 

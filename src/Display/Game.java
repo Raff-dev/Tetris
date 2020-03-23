@@ -15,7 +15,7 @@ public class Game implements Runnable {
     private Hashtable<String, RepetitiveTask> gameTasks = new Hashtable<>();
     private Hashtable<String, RepetitiveTask> menuTasks = new Hashtable<>();
 
-    public void init() {
+    void init() {
         drawMesh();
         sideBar.init();
         gameHandler.init();
@@ -24,7 +24,6 @@ public class Game implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("runnig");
         while (true) {
             gameTasks.forEach((n, t) -> t.execute());
             menuTasks.forEach((n, t) -> t.execute());
@@ -66,7 +65,7 @@ public class Game implements Runnable {
 
     public void increaseLevel(int level) {
         RepetitiveTask rt = gameTasks.get("updateGameHandler");
-        rt.setSeconds(perSecond(3 + level));
+        rt.setSeconds(perSecond(2 + level));
         gameHandler.setLevel(level);
     }
 }

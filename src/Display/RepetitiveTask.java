@@ -6,14 +6,15 @@ public class RepetitiveTask implements Task {
     private Task task;
     private double seconds;
     private long timer = 0;
-    private boolean active = false;
+    private boolean active = true;
 
-    RepetitiveTask(boolean active,double seconds, Task task) {
-        this.active=active;
+    RepetitiveTask(boolean active, double seconds, Task task) {
+        this.active = active;
         this.task = task;
         this.seconds = seconds;
     }
-        RepetitiveTask(double seconds, Task task) {
+
+    RepetitiveTask(double seconds, Task task) {
         this.task = task;
         this.seconds = seconds;
     }
@@ -44,7 +45,8 @@ public class RepetitiveTask implements Task {
     void setSeconds(double seconds) {
         this.seconds = seconds;
     }
-    double getSeconds(){
+
+    double getSeconds() {
         return seconds;
     }
 

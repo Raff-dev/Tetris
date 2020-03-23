@@ -15,7 +15,7 @@ public class GameHandler {
     private boolean gameOver = false;
     private Block activeBlock;
     private Block nextblock;
-    private int score,level,lines;
+    private int score=0,level=0,lines=0;
     static ArrayList<Color> colors = new ArrayList<>(Arrays.asList(
             Color.rgb(102, 153, 255),
             Color.rgb(153, 255, 102),
@@ -28,7 +28,8 @@ public class GameHandler {
         activeBlock = new Block();
         activeBlock.showOn(window);
         nextblock = new Block();
-        Window.sideBar.setNextBlock(nextblock);
+        sideBar.setNextBlock(nextblock);
+        sideBar.setValues(score,level,lines);
     }
 
     public void update() {
@@ -120,6 +121,7 @@ public class GameHandler {
 
     public void setLevel(int level){
         this.level = level;
+        sideBar.setValues(score,lines,level);
         System.out.println("level:" +level);
     }
 }

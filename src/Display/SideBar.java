@@ -23,7 +23,7 @@ public class SideBar extends VBox {
     private static int HEIGHT = Window.HEIGHT - Game.HEIGHT;
     private Hashtable<String, BarBox> boxes = new Hashtable<>();
 
-    void init(){
+    void init() {
         String[] boxesText = new String[]{"Next", "Score", "Lines", "Level"};
         for (String s : boxesText) boxes.put(s, new BarBox(s));
         setTranslateX(Game.WIDTH);
@@ -53,7 +53,7 @@ public class SideBar extends VBox {
     }
 
     //----------------------------------------------------------
-    public class BarBox extends VBox {
+    public static class BarBox extends VBox {
         Text text = new Text();
         BoxContent content = new BoxContent();
 
@@ -78,13 +78,10 @@ public class SideBar extends VBox {
                 val.setFont(Font.font(30));
                 val.setFill(Color.WHITE);
                 setAlignment(Pos.CENTER);
-                RepetitiveTask rt = new RepetitiveTask(true, perSecond(60), ()->sideBar.rot());
+                RepetitiveTask rt = new RepetitiveTask(true, perSecond(60), () -> sideBar.rot());
                 game.addTask("rot", rt, true);
                 getChildren().addAll(bg, val, blockPane);
-                blockPane.setRotate(100);
-
             }
-
 
             void setVal(int val) {
                 this.val.setText(Integer.toString(val));
@@ -94,7 +91,6 @@ public class SideBar extends VBox {
                 if (this.nextBlock != null) this.nextBlock.removeFrom(blockPane);
                 this.nextBlock = new Block((int) (WIDTH * 0.5 + blockType.width() * 0.5), (int) (side * 1.5 + blockType.height() * 0.5), blockType, color);
                 this.nextBlock.showOn(blockPane);
-                this.nextBlock.getTiles().forEach(t -> System.out.println(t.getX()));
             }
 
         }
