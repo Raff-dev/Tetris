@@ -32,7 +32,7 @@ public class SideBar extends VBox {
         Rectangle bg = new Rectangle(WIDTH, HEIGHT);
         bg.setFill(Color.RED);
         bg.setOpacity(0.4);
-        Window.window.getChildren().add(this);
+        //window.getChildren().add(this);
         getChildren().addAll(boxes.values());
         getChildren().add(bg);
     }
@@ -47,9 +47,9 @@ public class SideBar extends VBox {
         boxes.get("Next").content.setNextBlock(block.getBlockType(), block.getColor());
     }
 
-    public void rot() {
+    private void rot() {
         Pane p = boxes.get("Next").content.blockPane;
-        p.setRotate(p.getRotate() + 10);
+        p.setRotate(p.getRotate() + 6);
     }
 
     //----------------------------------------------------------
@@ -65,7 +65,7 @@ public class SideBar extends VBox {
         }
 
         //----------------------------------------------------------
-        class BoxContent extends StackPane {
+        static class BoxContent extends StackPane {
             Rectangle bg = new Rectangle(WIDTH, side * 3);
             Text val = new Text();
             Pane blockPane = new Pane();
@@ -74,7 +74,6 @@ public class SideBar extends VBox {
             BoxContent() {
                 bg.setFill(Color.BLACK);
                 bg.setOpacity(0.2);
-                val.setText("Sample text");
                 val.setFont(Font.font(30));
                 val.setFill(Color.WHITE);
                 setAlignment(Pos.CENTER);

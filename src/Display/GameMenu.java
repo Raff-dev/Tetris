@@ -1,13 +1,19 @@
 package Display;
 
 import Bindings.ButtonBindings;
+import Mechanics.Block;
+import Mechanics.Tile;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import java.util.*;
 import java.util.List;
@@ -16,44 +22,55 @@ import java.util.stream.Stream;
 
 import static Display.GameMenu.ButtonName.*;
 import static Display.GameMenu.Mode.*;
+import static Display.RepetitiveTask.perSecond;
+import static Display.SoundHandler.Sound.buttonHover;
+import static Display.SoundHandler.Sound.buttonSelect;
 import static Display.Window.*;
 import static javafx.scene.paint.Color.*;
 
-public class GameMenu extends VBox {
+public class GameMenu extends StackPane {
     public enum Mode {START, PAUSE, RUNNING}
 
     private static Mode mode = START;
-    private static int WIDTH = (int) (Game.WIDTH * 0.5);
-    private static int HEIGHT = (int) (Game.HEIGHT * 0.5);
-    private static Rectangle bg = new Rectangle(0, 0, Window.WIDTH, Window.HEIGHT);
+    private static int volume;
+
+    private static Rectangle bg = new Rectangle(Window.WIDTH, Window.HEIGHT);
+    private static VBox primaryItems = new VBox();
+    private static VBox secondaryItems = new VBox();
     private static MenuItem selection;
+    private static MenuItem title = new MenuItem("TETRIS");
 
     public static List<MenuItem> buttons = new ArrayList<>();
-    private  List<MenuItem> activeButtons = new ArrayList<>();
-    private  List<MenuItem> backgroundButtons = new ArrayList<>();
+    private List<MenuItem> activeButtons = new ArrayList<>();
+    private List<MenuItem> primaryButtons = new ArrayList<>();
+    private List<MenuItem> secondaryButtons = new ArrayList<>();
 
     public enum ButtonName {Play, Settings, Easy, Medium, Hard, Restart, Resume, Quit}
 
     GameMenu() {
         setProperties();
         ButtonBindings.bind();
-        window.getChildren().addAll(bg, this);
+        getChildren().addAll(bg, primaryItems, secondaryItems, title);
+        for (int i = 0; i < 10; i++) makeFloaties();
+
     }
 
-     void init() {
+    void init() {
         selection = buttons.get(0);
         selection.setHovered();
-        setActiveButtons(Play, Settings, Quit);
+        primaryButtons.addAll(getButtons(Play, Settings, Quit));
+        primaryItems.getChildren().addAll(primaryButtons);
+        moveButtons(0, primaryButtons);
+        setActiveButtons(primaryButtons);
     }
 
     private void setProperties() {
-        this.setTranslateX(Window.WIDTH * 0.5);
-        this.setTranslateY(Window.HEIGHT * 0.5);
         this.setPrefSize(WIDTH, HEIGHT);
-        bg.setFill(BLACK);
-        bg.setOpacity(0.3);
-        setSpacing(10);
-        setAlignment(Pos.CENTER);
+        bg.setFill(WHITE);
+        primaryItems.setSpacing(10);
+        secondaryItems.setSpacing(10);
+        primaryItems.setAlignment(Pos.CENTER);
+        secondaryItems.setAlignment(Pos.CENTER);
     }
 
     public static class MenuItem extends StackPane implements Task {
@@ -62,28 +79,35 @@ public class GameMenu extends VBox {
         Text text = new Text();
         Rectangle bg = new Rectangle();
 
+        MenuItem(String name) {
+            text.setText(name);
+            text.setFill(BLACK);
+            getChildren().addAll(text);
+        }
+
         public MenuItem(ButtonName name, Task task) {
             this.name = name;
             this.task = task;
             text.setText(String.valueOf(name));
             setDefault();
+            setTranslateX(WIDTH);
             getChildren().addAll(bg, text);
         }
 
         void setDefault() {
             setTranslateX(0);
-            setOpacity(1);
+            setOpacity(0.8);
             setScaleX(1);
             setScaleY(1);
-            bg.setWidth(WIDTH);
+            bg.setWidth(WIDTH * 0.7);
             bg.setHeight(50);
             bg.setFill(CADETBLUE);
             text.setFont(Font.font(30));
             text.setFill(WHITE);
-            setAlignment(Pos.CENTER);
         }
 
         void setHovered() {
+            setOpacity(1);
             bg.setHeight(70);
             text.setFont(Font.font(50));
         }
@@ -99,65 +123,117 @@ public class GameMenu extends VBox {
         else if (mode == Mode.RUNNING) pause();
     }
 
-    public void extendWith(ButtonName... names) {
-        backgroundButtons = activeButtons;
-        backgroundButtons.forEach(b -> {
-            b.setTranslateX(b.getTranslateX() - 200);
-            b.setOpacity(0.5);
-            b.setScaleX(0.7);
-            b.setScaleY(0.7);
-        });
-        setActiveButtons(names);
+    public void extendWith(List<MenuItem> newButtons) {
+        secondaryItems.getChildren().clear();
+        secondaryButtons.addAll(newButtons);
+        secondaryItems.getChildren().addAll(secondaryButtons);
+        moveButtons(-WIDTH, primaryButtons);
+        moveButtons(0, secondaryButtons);
+        setActiveButtons(secondaryButtons);
     }
 
-    private  void closeExtension() {
-        gameMenu.getChildren().removeAll(activeButtons);
-        backgroundButtons.forEach(b -> b.setDefault());
-        gameMenu.getChildren().addAll(backgroundButtons);
-        activeButtons = backgroundButtons;
+    private void moveButtons(int to, List<MenuItem> items) {
+        for (int i = 0; i < items.size(); i++) {
+            TranslateTransition tr = new TranslateTransition();
+            tr.setInterpolator(Interpolator.EASE_OUT);
+            tr.setDuration(new Duration(500));
+            tr.setToX(to);
+            tr.setNode(items.get(i));
+            tr.setDelay(new Duration(100 + i * 100));
+            tr.play();
+        }
     }
 
-    private void setActiveButtons(ButtonName... names) {
-        gameMenu.getChildren().removeAll(activeButtons);
-        Stream<MenuItem> extension = buttons.stream().filter(
-                b -> Arrays.asList(names).contains(b.name));
-        activeButtons = extension.collect(Collectors.toList());
-        gameMenu.getChildren().addAll(activeButtons);
-        selection = activeButtons.get(0);
-        selection.setHovered();
+    private void makeFloaties() {
+        int maxDist = Math.max(WIDTH, HEIGHT) + 4 * Tile.side;
+        int fromX, toX, fromY, toY;
+        double velX, velY;
+        Random random = new Random();
+        int rotation = random.nextInt(5)+5;
+
+        fromX = random.nextInt(maxDist);
+        toX = random.nextInt(maxDist);
+        fromY = random.nextInt(1) * maxDist;
+        toY = Math.abs(fromY - maxDist);
+        if (random.nextBoolean()) {
+            System.out.println("---------------------------------");
+            System.out.println("swaaperoo");
+            int temp = fromX;
+            fromX = fromY;
+            fromY = temp;
+            temp = toX;
+            toX = toY;
+            toY = temp;
+        }
+        velY = random.nextInt(10);
+        velX = velY * (fromX - toX) / (fromY - toY);
+        System.out.println("vel:" + velX + " " + velY + " a:" + (velY / velX));
+        System.out.println("From:" + fromX + "," + fromY + " To:" + toX + " " + toY);
+
+        Block.BlockType bt = Block.BlockType.atRandom();
+        Color c = Block.colorAtRandom();
+        Block floatie = new Block(fromX, fromY, bt, c);
+        Pane p = new Pane();
+        floatie.showOn(p);
+        getChildren().add(p);
+        RepetitiveTask rt = new RepetitiveTask(true, perSecond(60),
+                () -> {
+                    p.setRotate(p.getRotate() + rotation);
+                    p.setTranslateX(p.getTranslateX() + velX);
+                    p.setTranslateY(p.getTranslateY() + velY);
+                });
+        game.addTask(String.valueOf(toX),rt,false);
+
+    }
+
+    private static void swap(int first, int second) {
+        int temp = first;
+        first = second;
+        second = temp;
+    }
+
+    public void closeExtension() {
+        if (secondaryButtons.size() == 0) return;
+        moveButtons(0, primaryButtons);
+        moveButtons(WIDTH, secondaryButtons);
+        //primaryButtons.forEach(b -> b.setDefault());
+        secondaryButtons.clear();
+        setActiveButtons(primaryButtons);
     }
 
     public void setDifficulty(int level) {
         game.init();
         game.increaseLevel(level);
         mode = RUNNING;
-        window.getChildren().removeAll(bg, gameMenu);
-        gameMenu.getChildren().removeAll(buttons);
-        closeExtension();
-        setActiveButtons(Resume, Settings, Quit);
+        FadeTransition ft = new FadeTransition(new Duration(400), gameMenu);
+        ft.setToValue(0);
+        ft.setInterpolator(Interpolator.EASE_IN);
+        ft.setOnFinished((event) -> {
+            primaryItems.getChildren().clear();
+            primaryButtons.clear();
+            primaryButtons.addAll(getButtons(Resume, Settings, Restart, Quit));
+            primaryItems.getChildren().addAll(primaryButtons);
+            closeExtension();
+        });
+        ft.play();
     }
 
     private static void pause() {
         mode = PAUSE;
-        window.getChildren().addAll(bg, gameMenu);
+        bg.setOpacity(0.3);
+        bg.setFill(BLACK);
+        FadeTransition ft = new FadeTransition(new Duration(200), gameMenu);
+        ft.setToValue(1);
+        ft.play();
         game.pause();
     }
 
     public static void resume() {
         mode = RUNNING;
-        window.getChildren().removeAll(bg, gameMenu);
+        FadeTransition ft = new FadeTransition(new Duration(200), gameMenu);
+        ft.setToValue(0);
+        ft.play();
         game.resume();
-    }
-
-    public void select() {
-        buttons.stream().filter(b -> b == selection).findFirst().get().execute();
-    }
-
-    public void switchSelection(int dir) {
-        selection.setDefault();
-        Collections.rotate(activeButtons, -dir);
-        selection = activeButtons.get(0);
-        selection.setHovered();
     }
 
     public static void openSettings() {
@@ -173,6 +249,32 @@ public class GameMenu extends VBox {
     public static void quit() {
         Platform.exit();
         System.exit(0);
+    }
+
+    public void select() {
+        soundHandler.playSound(buttonSelect);
+        buttons.stream().filter(b -> b == selection).findFirst().get().execute();
+    }
+
+    public void switchSelection(int dir) {
+        soundHandler.playSound(buttonHover);
+        selection.setDefault();
+        Collections.rotate(activeButtons, -dir);
+        selection = activeButtons.get(0);
+        selection.setHovered();
+    }
+
+    private void setActiveButtons(List<MenuItem> newButtons) {
+        activeButtons.clear();
+        activeButtons.addAll(newButtons);
+        selection = activeButtons.get(0);
+        selection.setHovered();
+    }
+
+    public List<MenuItem> getButtons(ButtonName... names) {
+        Stream<MenuItem> buttonsStream = buttons.stream().filter(
+                b -> Arrays.asList(names).contains(b.name));
+        return buttonsStream.collect(Collectors.toList());
     }
 
     public Mode getMode() {

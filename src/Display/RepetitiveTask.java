@@ -2,11 +2,14 @@ package Display;
 
 import javafx.application.Platform;
 
+import java.util.function.BooleanSupplier;
+
 public class RepetitiveTask implements Task {
     private Task task;
     private double seconds;
     private long timer = 0;
     private boolean active = true;
+    private BooleanSupplier stopCondition = () -> false;
 
     RepetitiveTask(boolean active, double seconds, Task task) {
         this.active = active;
@@ -23,11 +26,14 @@ public class RepetitiveTask implements Task {
     public void execute() {
         if (timer == 0) timer = System.currentTimeMillis();
         if (System.currentTimeMillis() - timer > seconds * 1000) {
-            Platform.runLater(() -> {
-                if (active) task.execute();
-            });
+            if (stopCondition.getAsBoolean()) active = false;
+            if (active) Platform.runLater(() -> task.execute());
             timer += 1000 * seconds;
         }
+    }
+
+    void setStopCondition(BooleanSupplier bs) {
+        this.stopCondition = bs;
     }
 
     void Stop() {

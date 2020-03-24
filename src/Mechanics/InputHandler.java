@@ -1,10 +1,12 @@
 package Mechanics;
 
+import static Display.SoundHandler.Sound.denied;
 import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static Display.GameMenu.Mode.RUNNING;
 import static Display.Window.*;
 
+import Display.SoundHandler;
 import javafx.scene.input.KeyCode;
 import Display.Task;
 
@@ -13,7 +15,6 @@ import java.util.*;
 public class InputHandler {
     private Map<Object, Task> gameBindings = new HashMap<>();
     private Map<Object, Task> menuBindings = new HashMap<>();
-    private List<KeyCode> codes;
 
     public InputHandler() {
         assignBindings();
@@ -26,7 +27,7 @@ public class InputHandler {
     }
 
     private void assignBindings() {
-        codes = new ArrayList<>(Arrays.asList(
+        List<KeyCode> codes = new ArrayList<>(Arrays.asList(
                 ESCAPE, SPACE, ENTER, UP, DOWN, LEFT, RIGHT));
 
         List<Task> gameActions = new ArrayList<>(Arrays.asList(
@@ -37,11 +38,14 @@ public class InputHandler {
                 () -> gameHandler.move(0),
                 () -> gameHandler.move(-1),
                 () -> gameHandler.move(1)
+
         ));
         List<Task> menuActions = new ArrayList<>(Arrays.asList(
-                gameMenu::toggle, ()->gameMenu.select(), ()->gameMenu.select(),
+                gameMenu::toggle, () -> gameMenu.select(), () -> gameMenu.select(),
                 () -> gameMenu.switchSelection(-1),
-                () -> gameMenu.switchSelection(1)
+                () -> gameMenu.switchSelection(1),
+                () -> gameMenu.closeExtension(),
+                ()->soundHandler.playSound(denied)
         ));
         final Iterator citer1 = codes.iterator(), citer2 = codes.iterator();
         gameActions.forEach(action -> gameBindings.put(citer1.next(), action));

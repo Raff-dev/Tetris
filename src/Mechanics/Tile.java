@@ -1,12 +1,12 @@
 package Mechanics;
 
 import Display.Game;
-import Display.Window;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
+import static Display.Window.gameHandler;
+
 public class Tile {
-    private static GameHandler gameHandler = Window.gameHandler;
     public static final int side = 40;
     private Block block;
     private Rectangle tile = new Rectangle(side, side);
@@ -20,15 +20,15 @@ public class Tile {
 
     boolean cantMove(int dir) {
         int x = getX(), y = getY();
-        boolean xBorder = false, yBorder = false, ocuppied;
+        boolean xBorder = false, yBorder = false, occupied;
         if (dir == 0) {
             yBorder = y + side == Game.HEIGHT;
-            ocuppied = isOcuppied(x, y + side);
+            occupied = isOcuppied(x, y + side);
         } else {
             xBorder = (x + side) * dir == Game.WIDTH || (x + side) * dir == -side;
-            ocuppied = isOcuppied(x + dir * side, y);
+            occupied = isOcuppied(x + dir * side, y);
         }
-        return ocuppied || xBorder || yBorder;
+        return occupied || xBorder || yBorder;
     }
 
     boolean hasLanded() {

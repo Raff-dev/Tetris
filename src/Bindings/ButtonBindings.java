@@ -9,7 +9,7 @@ import static Display.Window.gameMenu;
 public class ButtonBindings {
     public static void bind(){
         buttons.add(new MenuItem(Play,
-                ()->gameMenu.extendWith(Easy, Medium, Hard)));
+                ()->gameMenu.extendWith(gameMenu.getButtons(Easy, Medium, Hard))));
         buttons.add(new MenuItem(Easy,
                 ()->gameMenu.setDifficulty(1)));
         buttons.add(new MenuItem(Medium,

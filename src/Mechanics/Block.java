@@ -1,11 +1,12 @@
 package Mechanics;
 
 import Display.Game;
-import Display.Window;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import java.util.*;
+
+import static Display.Window.gameHandler;
 
 public class Block {
     private static int side = Tile.side;
@@ -14,7 +15,6 @@ public class Block {
     private static boolean isShown = false;
     private BlockType blockType;
     private Color color;
-    int colorIndex;
 
     public Block(int x, int y, BlockType blockType, Color color) {
         this.x = x;
@@ -27,9 +27,13 @@ public class Block {
     Block() {
         this.x = Game.WIDTH / 2 + side;
         this.y = -0;
+
+        do color = colors.get(new Random().nextInt(colors.size()));
+        while (color == gameHandler.getActiveBlockColor());
+
         this.color = colorAtRandom();
         do blockType = BlockType.atRandom();
-        while (blockType == Window.gameHandler.getActiveBlockBlockType());
+        while (blockType == gameHandler.getActiveBlockBlockType());
         tiles.addAll(generateTiles(this));
         canMoveY();
     }
@@ -39,7 +43,7 @@ public class Block {
         for (int row = 0; row < block.blockType.layout.length; row++)
             for (int col = 0; col < block.blockType.layout[0].length; col++)
                 if (block.blockType.layout[row][col] == 1)
-                    newTiles.add(new Tile(-(col+1) * side, -(row+1)* side, block));
+                    newTiles.add(new Tile(-(col + 1) * side, -(row + 1) * side, block));
         return newTiles;
     }
 
@@ -74,10 +78,10 @@ public class Block {
     }
 
     private void landed() {
-        Window.gameHandler.blockLanded(this);
+        gameHandler.blockLanded(this);
     }
 
-    void rotate() {
+    boolean rotate() {
         BlockType bt = this.blockType;
         int rows = bt.layout.length - 1;
         int cols = bt.layout[0].length - 1;
@@ -108,7 +112,7 @@ public class Block {
                             tiles = backupTiles;
                             x = backupX;
                             for (Tile tile : this.tiles) tile.move();
-                            return;
+                            return false;
                         }
                     }
                     t.move();
@@ -116,6 +120,7 @@ public class Block {
             }
         }
         bt.layout = newlayout;
+        return true;
     }
 
     public enum BlockType {
@@ -132,34 +137,41 @@ public class Block {
             this.layout = layout;
         }
 
-        private static BlockType atRandom() {
+        public static BlockType atRandom() {
             Random random = new Random();
             return BlockType.values()[random.nextInt(BlockType.values().length)];
         }
-        public int width(){
-            return this.layout[0].length*side;
+
+        public int width() {
+            return this.layout[0].length * side;
         }
-        public int height(){
-            return this.layout.length*side;
+
+        public int height() {
+            return this.layout.length * side;
         }
+    }
+
+    private static ArrayList<Color> colors = new ArrayList<>(Arrays.asList(
+            Color.rgb(102, 153, 255),
+            Color.rgb(153, 255, 102),
+            Color.rgb(255, 204, 102),
+            Color.rgb(255, 102, 102),
+            Color.rgb(255, 102, 204)
+    ));
+
+    public static Color colorAtRandom() {
+        return colors.get(new Random().nextInt(colors.size()));
     }
 
     public void removeFrom(Pane pane) {
-        tiles.forEach(t-> t.removeFrom(pane));
-    }
-
-    private Color colorAtRandom() {
-        int prevIndex = Window.gameHandler.getLastColorIndex();
-        do colorIndex = new Random().nextInt(GameHandler.colors.size());
-        while (colorIndex == prevIndex);
-        return GameHandler.colors.get(colorIndex);
+        tiles.forEach(t -> t.removeFrom(pane));
     }
 
     public BlockType getBlockType() {
         return this.blockType;
     }
 
-    public ArrayList<Tile> getTiles() {
+    ArrayList<Tile> getTiles() {
         return this.tiles;
     }
 
@@ -167,7 +179,7 @@ public class Block {
         return this.color;
     }
 
-    public int getX() {
+    int getX() {
         return this.x;
     }
 
