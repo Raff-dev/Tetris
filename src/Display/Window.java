@@ -21,6 +21,7 @@ public class Window extends Application {
     public static final InputHandler inputHandler = new InputHandler();
     public static final GameHandler gameHandler = new GameHandler();
     public static final SoundHandler soundHandler = new SoundHandler();
+    public static final Colors colors = new Colors();
 
     @Override
     public void start(final Stage stage) {

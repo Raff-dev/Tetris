@@ -14,11 +14,11 @@ public class Game extends Pane implements Runnable {
     public static int WIDTH = 10 * Tile.side, HEIGHT = 20 * Tile.side;
     private Hashtable<String, RepetitiveTask> gameTasks = new Hashtable<>();
     private Hashtable<String, RepetitiveTask> menuTasks = new Hashtable<>();
+    private boolean running = false;
 
     void init() {
+        running = true;
         drawMesh();
-        sideBar.init();
-        gameHandler.init();
         addTask("updateGameHandler", perSecond(3.0), gameHandler::update, true);
     }
 
@@ -43,12 +43,12 @@ public class Game extends Pane implements Runnable {
     private void drawMesh() {
         for (int y = Tile.side; y < HEIGHT; y += Tile.side) {
             Line line = new Line(0, y, WIDTH, y);
-            line.setStroke(Color.GREEN);
+            line.setStroke(Color.GRAY);
             getChildren().add(line);
         }
         for (int x = Tile.side; x <= WIDTH; x += Tile.side) {
-            Line line = new Line(x, 0,x, HEIGHT);
-            line.setStroke(Color.GREEN);
+            Line line = new Line(x, 0, x, HEIGHT);
+            line.setStroke(Color.GRAY);
             getChildren().add(line);
         }
     }
@@ -58,15 +58,23 @@ public class Game extends Pane implements Runnable {
         else menuTasks.put(name, rt);
     }
 
-    void addTask(String name, double seconds, Task task, boolean game) {
+    public void addTask(String name, double seconds, Task task, boolean game) {
         RepetitiveTask rt = new RepetitiveTask(seconds, task);
         if (game) gameTasks.put(name, rt);
         else menuTasks.put(name, rt);
     }
 
+    public void removeTask(String name, boolean game) {
+        if (game) gameTasks.remove(name);
+        else menuTasks.remove(name);
+    }
+
     public void setLevel(int level) {
         RepetitiveTask rt = gameTasks.get("updateGameHandler");
-        rt.setSeconds(perSecond(2 + 1.5*Math.sqrt(level)));
-        gameHandler.setLevel(level);
+        rt.setSeconds(perSecond(2 + 1.8 * Math.sqrt(level)));
+    }
+
+    boolean isRunning() {
+        return running;
     }
 }

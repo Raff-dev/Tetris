@@ -27,11 +27,12 @@ public class SideBar extends VBox {
         getChildren().addAll(boxes.values());
     }
 
-    private void setProperties(){
+    private void setProperties() {
         setTranslateX(Game.WIDTH);
-        setTranslateY(100);
+        setTranslateY(50);
         setSpacing(25);
     }
+
     public void setValues(int score, int lines, int level) {
         boxes.get("Score").content.setVal(score);
         boxes.get("Lines").content.setVal(lines);
@@ -39,7 +40,12 @@ public class SideBar extends VBox {
     }
 
     public void setNextBlock(Block block) {
+        while (block.getBlockType().getRotation() != 0) block.rotate();
         boxes.get("Next").content.setNextBlock(block.getBlockType(), block.getColor());
+    }
+
+    Block getNextBlock() {
+        return boxes.get("Next").content.nextBlock;
     }
 
     //----------------------------------------------------------
@@ -50,7 +56,8 @@ public class SideBar extends VBox {
         BarBox(String name) {
             setAlignment(Pos.CENTER);
 
-            this.text.setText(name);
+            text.setText(name);
+            text.setFont(Font.font(20));
             getChildren().addAll(text, content);
         }
 
@@ -79,7 +86,6 @@ public class SideBar extends VBox {
                 this.nextBlock = new Block((int) (WIDTH * 0.5 + blockType.width() * 0.5), (int) (side * 1.5 + blockType.height() * 0.5), blockType, color);
                 this.nextBlock.showOn(blockPane);
             }
-
         }
     }
 

@@ -6,15 +6,15 @@ import javafx.scene.paint.Color;
 
 import java.util.*;
 
+import static Display.Window.colors;
 import static Display.Window.gameHandler;
 
 public class Block {
-    private static int side = Tile.side;
     private ArrayList<Tile> tiles = new ArrayList<>();
-    private int x, y;
-    private static boolean isShown = false;
     private BlockType blockType;
     private Color color;
+    private int x, y;
+    private static boolean isShown = false;
 
     public Block(int x, int y, BlockType blockType, Color color) {
         this.x = x;
@@ -25,13 +25,10 @@ public class Block {
     }
 
     Block() {
-        this.x = Game.WIDTH / 2 + side;
+        this.x = Game.WIDTH / 2 + Tile.side;
         this.y = -0;
-
-        do color = colors.get(new Random().nextInt(colors.size()));
+        do color = colors.getRandom();
         while (color == gameHandler.getActiveBlockColor());
-
-        this.color = colorAtRandom();
         do blockType = BlockType.atRandom();
         while (blockType == gameHandler.getActiveBlockBlockType());
         tiles.addAll(generateTiles(this));
@@ -43,7 +40,7 @@ public class Block {
         for (int row = 0; row < block.blockType.layout.length; row++)
             for (int col = 0; col < block.blockType.layout[0].length; col++)
                 if (block.blockType.layout[row][col] == 1)
-                    newTiles.add(new Tile(-(col + 1) * side, -(row + 1) * side, block));
+                    newTiles.add(new Tile(-(col + 1) * Tile.side, -(row + 1) * Tile.side, block));
         return newTiles;
     }
 
@@ -54,7 +51,7 @@ public class Block {
 
     void moveX(int dir) {
         if (canMoveX(dir)) {
-            x += dir * side;
+            x += dir * Tile.side;
             tiles.forEach(Tile::move);
         }
     }
@@ -62,7 +59,7 @@ public class Block {
     void moveY() {
         if (!canMoveY()) landed();
         else {
-            y += side;
+            y += Tile.side;
             tiles.forEach(Tile::move);
         }
     }
@@ -81,7 +78,7 @@ public class Block {
         gameHandler.blockLanded(this);
     }
 
-    boolean rotate() {
+    public boolean rotate() {
         BlockType bt = this.blockType;
         int rows = bt.layout.length - 1;
         int cols = bt.layout[0].length - 1;
@@ -96,15 +93,15 @@ public class Block {
         Iterator<Tile> titer = tiles.iterator();
         int offsetX, offsetY = 0, backupX = x;
         for (int[] row : newlayout) {
-            offsetY += side;
+            offsetY += Tile.side;
             offsetX = 0;
             for (int isPresent : row) {
-                offsetX += side;
+                offsetX += Tile.side;
                 if (isPresent == 1) {
                     Tile t = titer.next();
                     t.setOffset(-offsetX, -offsetY);
                     boolean ocuppied = Tile.isOcuppied(t.getX(), t.getY());
-                    boolean boundaries = t.getX() == -side || t.getX() == Game.WIDTH;
+                    boolean boundaries = t.getX() == -Tile.side || t.getX() == Game.WIDTH;
                     if (ocuppied || boundaries) {
                         if (canMoveX(1)) moveX(1);
                         else {
@@ -119,7 +116,8 @@ public class Block {
                 }
             }
         }
-        bt.layout = newlayout;
+        this.blockType.layout = newlayout;
+        this.blockType.rotate();
         return true;
     }
 
@@ -132,6 +130,7 @@ public class Block {
         Hero(new int[][]{{1, 1, 1, 1}}),
         Teewee(new int[][]{{0, 1, 0}, {1, 1, 1}});
         int[][] layout;
+        int rotation = 0;
 
         BlockType(int[][] layout) {
             this.layout = layout;
@@ -143,24 +142,20 @@ public class Block {
         }
 
         public int width() {
-            return this.layout[0].length * side;
+            return this.layout[0].length * Tile.side;
         }
 
         public int height() {
-            return this.layout.length * side;
+            return this.layout.length * Tile.side;
         }
-    }
 
-    private static ArrayList<Color> colors = new ArrayList<>(Arrays.asList(
-            Color.rgb(102, 153, 255),
-            Color.rgb(153, 255, 102),
-            Color.rgb(255, 204, 102),
-            Color.rgb(255, 102, 102),
-            Color.rgb(255, 102, 204)
-    ));
+        public void rotate() {
+            this.rotation = (this.rotation + 1) % 4;
+        }
 
-    public static Color colorAtRandom() {
-        return colors.get(new Random().nextInt(colors.size()));
+        public int getRotation() {
+            return this.rotation;
+        }
     }
 
     public void removeFrom(Pane pane) {
@@ -177,6 +172,11 @@ public class Block {
 
     public Color getColor() {
         return this.color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+        tiles.forEach(t -> t.getTile().setFill(color));
     }
 
     int getX() {

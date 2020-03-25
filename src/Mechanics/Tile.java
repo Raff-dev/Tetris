@@ -7,7 +7,7 @@ import javafx.scene.shape.Rectangle;
 import static Display.Window.gameHandler;
 
 public class Tile {
-    public static int side = 50;
+    public static int side = 40;
     private Block block;
     private Rectangle tile = new Rectangle(side, side);
     private int offsetX, offsetY;
@@ -39,7 +39,7 @@ public class Tile {
         return gameHandler.getOccupied().stream().anyMatch(t -> t.getX() == x && t.getY() == y);
     }
 
-    public void move() {
+    void move() {
         tile.relocate(block.getX() + offsetX, block.getY() + offsetY);
     }
 
@@ -74,7 +74,7 @@ public class Tile {
         Tile.side = side;
     }
 
-    public int getX() {
+    int getX() {
         return this.block.getX() + offsetX;
     }
 
@@ -82,7 +82,11 @@ public class Tile {
         return this.block.getY() + offsetY;
     }
 
-    Rectangle getTile() {
+    public Rectangle getTile() {
         return tile;
+    }
+
+    public Block getBlock() {
+        return block;
     }
 }

@@ -10,7 +10,7 @@ public class SoundHandler {
 
     public enum Sound {init, denied, buttonHover, buttonSelect, blockRotate, blockLanded, lineClear}
 
-    public SoundHandler() {
+    SoundHandler() {
         playSound(Sound.init);
     }
 
@@ -23,11 +23,11 @@ public class SoundHandler {
         mediaPlayer.play();
     }
 
-    public void setVolume(double volume) {
+    void setVolume(double volume) {
         this.volume = volume * 0.01;
     }
 
-    public int getVolume() {
+    int getVolume() {
         return (int) (volume * 100);
     }
 }

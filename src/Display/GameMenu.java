@@ -4,7 +4,6 @@ import Bindings.ButtonBindings;
 import Mechanics.Block;
 import Mechanics.Tile;
 import javafx.animation.*;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -12,8 +11,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.util.*;
@@ -28,21 +25,20 @@ import static Display.Window.*;
 import static javafx.scene.paint.Color.*;
 
 public class GameMenu extends StackPane {
-
     private static Mode mode = START;
-    private static int volume;
-
     private static Rectangle bg = new Rectangle(Window.WIDTH, Window.HEIGHT);
     private static VBox primaryItems = new VBox();
     private static VBox secondaryItems = new VBox();
-    private static Pane floaties = new Pane();
+    private static Pane floatiesContainer = new Pane();
     private static MenuItem selection;
-    private static MenuItem title = new MenuItem("TETRIS");
 
+    private List<Block> floaties = new ArrayList<>();
     public static List<MenuItem> buttons = new ArrayList<>();
     private List<MenuItem> activeButtons = new ArrayList<>();
     private List<MenuItem> primaryButtons = new ArrayList<>();
     private List<MenuItem> secondaryButtons = new ArrayList<>();
+    private List<Colors.Palette> colorChoices = new ArrayList<>(
+            Arrays.asList(Colors.Palette.values()));
 
     public enum Mode {START, PAUSE, RUNNING}
 
@@ -51,7 +47,7 @@ public class GameMenu extends StackPane {
     GameMenu() {
         setProperties();
         ButtonBindings.bind();
-        getChildren().addAll(bg, floaties, primaryItems, secondaryItems, title);
+        getChildren().addAll(bg, floatiesContainer, primaryItems, secondaryItems);
         game.addTask("Floaties", 1, () -> makeFloaties(), false);
     }
 
@@ -61,9 +57,7 @@ public class GameMenu extends StackPane {
         primaryButtons.addAll(getButtons(Play, Settings, Quit));
         primaryItems.getChildren().addAll(primaryButtons);
         setActiveButtons(primaryButtons);
-        moveButtons(0, primaryButtons, () -> {
-
-        });
+        moveButtons(0, primaryButtons, null);
     }
 
     private void setProperties() {
@@ -73,54 +67,6 @@ public class GameMenu extends StackPane {
         secondaryItems.setSpacing(10);
         primaryItems.setAlignment(Pos.CENTER);
         secondaryItems.setAlignment(Pos.CENTER);
-    }
-
-    public static class MenuItem extends StackPane implements Task {
-        ButtonName name;
-        Task task;
-        Text text = new Text();
-        Rectangle bg = new Rectangle();
-
-        MenuItem(String name) {
-            text.setText(name);
-            text.setFill(BLACK);
-            getChildren().addAll(text);
-        }
-
-        public MenuItem(ButtonName name, Task task) {
-            this.name = name;
-            this.task = task;
-            text.setText(String.valueOf(name));
-            setDefault();
-            setTranslateX(WIDTH);
-            getChildren().addAll(bg, text);
-        }
-
-        void setDefault() {
-            setOpacity(0.8);
-            setScaleX(1);
-            setScaleY(1);
-            bg.setWidth(WIDTH * 0.7);
-            bg.setHeight(50);
-            bg.setFill(CADETBLUE);
-            text.setFont(Font.font(30));
-            text.setFill(WHITE);
-        }
-
-        void setHovered() {
-            setOpacity(1);
-            bg.setHeight(70);
-            text.setFont(Font.font(50));
-        }
-
-        public void setText(String text) {
-            this.text.setText(text);
-        }
-
-        @Override
-        public void execute() {
-            task.execute();
-        }
     }
 
     private void setActiveButtons(List<MenuItem> newButtons) {
@@ -135,20 +81,13 @@ public class GameMenu extends StackPane {
         secondaryItems.getChildren().clear();
         secondaryButtons.addAll(newButtons);
         secondaryItems.getChildren().addAll(secondaryButtons);
-        moveButtons(-WIDTH, primaryButtons, () -> {
-
-        });
-        moveButtons(0, secondaryButtons, () -> {
-
-        });
-        setActiveButtons(secondaryButtons);
+        moveButtons(0, secondaryButtons, () -> setActiveButtons(secondaryButtons));
+        moveButtons(-WIDTH, primaryButtons, null);
     }
 
-    public void closeExtension() {
+    private void closeExtension() {
         if (secondaryButtons.size() == 0) return;
-        moveButtons(0, primaryButtons, () -> {
-            setActiveButtons(primaryButtons);
-        });
+        moveButtons(0, primaryButtons, () -> setActiveButtons(primaryButtons));
         moveButtons(WIDTH, secondaryButtons, () -> {
             secondaryButtons.forEach(b -> b.setDefault());
             secondaryButtons.clear();
@@ -178,15 +117,20 @@ public class GameMenu extends StackPane {
     }
 
     public void toggleMenu() {
-        System.out.println(mode);
         if (mode == START) closeExtension();
         else if (mode == PAUSE) resume();
         else if (mode == RUNNING) pause();
     }
 
     public void startGame(int level) {
-        game.init();
-        game.setLevel(level);
+        if (!game.isRunning()) {
+            game.init();
+            sideBar.init();
+        }
+        gameHandler.setStartLevel(level);
+        gameHandler.start();
+        game.resume();
+
         mode = RUNNING;
         FadeTransition ft = new FadeTransition(new Duration(400), gameMenu);
         ft.setToValue(0);
@@ -209,7 +153,19 @@ public class GameMenu extends StackPane {
     }
 
     public void changeColorPalette() {
-        soundHandler.playSound(denied);
+        Collections.rotate(colorChoices, 1);
+        getButton(Color_palette).setText("Color palette: " + colorChoices.get(0));
+        gameHandler.getOccupied().forEach(t -> {
+            for (int i = 0; i < colors.getActive().size(); i++)
+                if (t.getTile().getFill() == colors.getActive().get(i))
+                    t.getTile().setFill(colors.getPalette(colorChoices.get(0)).get(i));
+        });
+        colors.setActive(colorChoices.get(0));
+        floaties.forEach(f -> f.setColor(colors.getRandom()));
+        if (mode == PAUSE) {
+            gameHandler.getActiveBlock().setColor(colors.getRandom());
+            sideBar.getNextBlock().setColor(colors.getRandom());
+        }
     }
 
     private static void pause() {
@@ -235,14 +191,27 @@ public class GameMenu extends StackPane {
     }
 
     public static void restart() {
-        gameHandler.init();
+        gameHandler.start();
         resume();
-        System.out.println("restart");
     }
 
-    public static void quit() {
-        Platform.exit();
-        System.exit(0);
+    public void quit() {
+        FillTransition fit = new FillTransition(new Duration(1200), bg);
+        FadeTransition fat = new FadeTransition(new Duration(1000), floatiesContainer);
+        fat.setToValue(0);
+        fat.play();
+        fit.setToValue(BLACK);
+        fit.setInterpolator(Interpolator.EASE_IN);
+        fit.play();
+        moveButtons(WIDTH, activeButtons, null);
+        new Thread(() -> {
+            try {
+                Thread.sleep(1500);
+                System.exit(0);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void makeFloaties() {
@@ -259,11 +228,12 @@ public class GameMenu extends StackPane {
         toY = Math.abs(fromY - maxDist) - safeBuffer;
 
         Block.BlockType bt = Block.BlockType.atRandom();
-        Color c = Block.colorAtRandom();
+        Color c = colors.getRandom();
         Block floatie = new Block(bt.width() / 2, bt.height() / 2, bt, c);
+        floaties.add(floatie);
         Pane p = new BorderPane();
         floatie.showOn(p);
-        floaties.getChildren().add(p);
+        floatiesContainer.getChildren().add(p);
         TranslateTransition tr = new TranslateTransition(new Duration(timeMs), p);
         RotateTransition rt = new RotateTransition(new Duration(timeMs), p);
         rt.setToAngle(rotation);
@@ -281,10 +251,12 @@ public class GameMenu extends StackPane {
             tr.setToY(toX);
         }
         tr.setInterpolator(Interpolator.LINEAR);
-        tr.setOnFinished((event) -> floaties.getChildren().remove(p));
+        tr.setOnFinished((event) -> {
+            floatiesContainer.getChildren().remove(p);
+            floaties.remove(floatie);
+        });
         tr.play();
     }
-
 
     private void moveButtons(int to, List<MenuItem> items, Task task) {
         for (int i = 0; i < items.size(); i++) {
@@ -293,10 +265,10 @@ public class GameMenu extends StackPane {
             tr.setDuration(new Duration(500));
             tr.setToX(to);
             tr.setNode(items.get(i));
-            tr.setOnFinished((e) -> task.execute());
             tr.setDelay(new Duration(100 + i * 100));
             tr.play();
         }
+        if (task != null) task.execute();
     }
 
     public List<MenuItem> getButtons(ButtonName... names) {
@@ -305,7 +277,7 @@ public class GameMenu extends StackPane {
         return buttonsStream.collect(Collectors.toList());
     }
 
-    public MenuItem getButton(ButtonName name) {
+    private MenuItem getButton(ButtonName name) {
         return buttons.stream().filter(b -> b.name == name).findFirst().get();
     }
 

@@ -1,5 +1,6 @@
 package Mechanics;
 
+import Display.RepetitiveTask;
 import javafx.scene.paint.Color;
 
 import static Display.SoundHandler.Sound.*;
@@ -12,21 +13,26 @@ import java.util.stream.Stream;
 
 public class GameHandler {
     private ArrayList<Tile> occupied = new ArrayList<>();
-    private boolean gameOver = false;
+    private boolean gameOver;
     private Block activeBlock;
     private Block nextBlock;
-    private int score = 0, level = 0, lines = 0;
+    private int startLevel;
+    private int level;
+    private int score;
+    private int lines;
 
-
-    public void init() {
+    public void start() {
+        gameOver = false;
         if (activeBlock != null)
             activeBlock.getTiles().forEach(t -> game.getChildren().remove(t.getTile()));
         occupied.removeIf(t -> game.getChildren().removeAll(t.getTile()));
         activeBlock = new Block();
         activeBlock.showOn(game);
         nextBlock = new Block();
-        score=level=lines=0;
-        sideBar.setValues(score, level, lines);
+        score = lines = 0;
+        level = startLevel;
+        game.setLevel(level);
+        sideBar.setValues(score, lines, level);
         sideBar.setNextBlock(nextBlock);
     }
 
@@ -35,8 +41,12 @@ public class GameHandler {
     }
 
     void move(int dir) {
-        if (dir == 0) activeBlock.moveY();
-        else activeBlock.moveX(dir);
+        if (dir == 0) game.addTask("Move" + dir, 0.05, () -> activeBlock.moveY(), true);
+        else game.addTask("Move" + dir, 0.05, () -> activeBlock.moveX(dir), true);
+    }
+
+    void unMove(int dir) {
+        game.removeTask("Move" + dir, true);
     }
 
     void rotate() {
@@ -82,10 +92,8 @@ public class GameHandler {
         });
         if (toRemove.size() > 0) {
             toRemove.forEach(t -> t.removeFrom(game));
-            yDelete.forEach(y -> {
-                occupied.stream().filter(t -> t.getY() < y).forEach(Tile::fall);
-                System.out.println("ylookfor " + y);
-            });
+            yDelete.forEach(y -> occupied.stream()
+                    .filter(t -> t.getY() < y).forEach(Tile::fall));
             updateSideBar(yDelete.size());
             return yDelete.size();
         }
@@ -93,15 +101,23 @@ public class GameHandler {
     }
 
     private void updateSideBar(int count) {
-        lines += count;
         score += 100 * count * (level + count * 0.5);
-        if (lines % 10 == 0) game.setLevel(++level);
+        for (int i = 0; i < count; i++)
+            if (++lines % 5 == 0) game.setLevel(++level);
         sideBar.setValues(score, lines, level);
+    }
+
+    public void setStartLevel(int startLevel) {
+        this.startLevel = startLevel;
     }
 
     private void gameOver() {
         gameOver = true;
         System.out.println("GAME OVER");
+    }
+
+    public Block getActiveBlock() {
+        return activeBlock;
     }
 
     Color getActiveBlockColor() {
@@ -114,13 +130,7 @@ public class GameHandler {
         return activeBlock.getBlockType();
     }
 
-    ArrayList<Tile> getOccupied() {
+    public ArrayList<Tile> getOccupied() {
         return occupied;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
-        sideBar.setValues(score, lines, level);
-        System.out.println("level:" + level);
     }
 }

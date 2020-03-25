@@ -1,6 +1,7 @@
 package Bindings;
 
 import Display.GameMenu.*;
+import Display.MenuItem;
 
 import static Display.GameMenu.ButtonName.*;
 
@@ -20,7 +21,7 @@ public class ButtonBindings {
         buttons.add(new MenuItem(Restart,
                 () -> restart()));
         buttons.add(new MenuItem(Quit,
-                () -> quit()));
+                () -> gameMenu.quit()));
 
         buttons.add(new MenuItem(Easy,
                 () -> gameMenu.startGame(1)));
