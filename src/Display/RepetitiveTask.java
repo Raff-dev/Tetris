@@ -17,7 +17,12 @@ public class RepetitiveTask implements Task {
         this.seconds = seconds;
     }
 
-    RepetitiveTask(double seconds, Task task) {
+    RepetitiveTask(boolean active, double seconds) {
+        this.active = active;
+        this.seconds=seconds;
+    }
+
+        RepetitiveTask(double seconds, Task task) {
         this.task = task;
         this.seconds = seconds;
     }
@@ -32,6 +37,9 @@ public class RepetitiveTask implements Task {
         }
     }
 
+    void setTask(Task task){
+        this.task = task;
+    }
     void setStopCondition(BooleanSupplier bs) {
         this.stopCondition = bs;
     }

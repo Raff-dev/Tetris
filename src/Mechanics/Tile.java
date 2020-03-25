@@ -7,7 +7,7 @@ import javafx.scene.shape.Rectangle;
 import static Display.Window.gameHandler;
 
 public class Tile {
-    public static final int side = 40;
+    public static int side = 50;
     private Block block;
     private Rectangle tile = new Rectangle(side, side);
     private int offsetX, offsetY;
@@ -69,6 +69,9 @@ public class Tile {
         Tile newTile = new Tile(offsetX, offsetY, block);
         newTile.tile = tile;
         return newTile;
+    }
+    public static void setSide(int side) {
+        Tile.side = side;
     }
 
     public int getX() {

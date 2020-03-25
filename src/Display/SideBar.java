@@ -13,10 +13,6 @@ import javafx.scene.text.Text;
 
 import java.util.Hashtable;
 
-import static Display.RepetitiveTask.perSecond;
-import static Display.Window.game;
-import static Display.Window.sideBar;
-
 public class SideBar extends VBox {
     private static int side = Tile.side;
     private static int WIDTH = Window.WIDTH - Game.WIDTH;
@@ -24,19 +20,18 @@ public class SideBar extends VBox {
     private Hashtable<String, BarBox> boxes = new Hashtable<>();
 
     void init() {
+        getChildren().clear();
+        setProperties();
         String[] boxesText = new String[]{"Next", "Score", "Lines", "Level"};
         for (String s : boxesText) boxes.put(s, new BarBox(s));
+        getChildren().addAll(boxes.values());
+    }
+
+    private void setProperties(){
         setTranslateX(Game.WIDTH);
         setTranslateY(100);
         setSpacing(25);
-        Rectangle bg = new Rectangle(WIDTH, HEIGHT);
-        bg.setFill(Color.RED);
-        bg.setOpacity(0.4);
-        //window.getChildren().add(this);
-        getChildren().addAll(boxes.values());
-        getChildren().add(bg);
     }
-
     public void setValues(int score, int lines, int level) {
         boxes.get("Score").content.setVal(score);
         boxes.get("Lines").content.setVal(lines);
@@ -45,11 +40,6 @@ public class SideBar extends VBox {
 
     public void setNextBlock(Block block) {
         boxes.get("Next").content.setNextBlock(block.getBlockType(), block.getColor());
-    }
-
-    private void rot() {
-        Pane p = boxes.get("Next").content.blockPane;
-        p.setRotate(p.getRotate() + 6);
     }
 
     //----------------------------------------------------------
@@ -77,8 +67,6 @@ public class SideBar extends VBox {
                 val.setFont(Font.font(30));
                 val.setFill(Color.WHITE);
                 setAlignment(Pos.CENTER);
-                RepetitiveTask rt = new RepetitiveTask(true, perSecond(60), () -> sideBar.rot());
-                game.addTask("rot", rt, true);
                 getChildren().addAll(bg, val, blockPane);
             }
 

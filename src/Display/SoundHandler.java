@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 public class SoundHandler {
     private double volume = 0.5;
 
-    public enum Sound {init,denied,buttonHover,buttonSelect,blockRotate,blockLanded,lineClear}
+    public enum Sound {init, denied, buttonHover, buttonSelect, blockRotate, blockLanded, lineClear}
 
     public SoundHandler() {
         playSound(Sound.init);
@@ -23,8 +23,11 @@ public class SoundHandler {
         mediaPlayer.play();
     }
 
-    public void setVolume(double volume){
-        this.volume=volume;
+    public void setVolume(double volume) {
+        this.volume = volume * 0.01;
     }
 
+    public int getVolume() {
+        return (int) (volume * 100);
+    }
 }

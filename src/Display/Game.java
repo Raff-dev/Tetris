@@ -22,6 +22,16 @@ public class Game extends Pane implements Runnable {
         addTask("updateGameHandler", perSecond(3.0), gameHandler::update, true);
     }
 
+    void pause() {
+        gameTasks.forEach((n, t) -> t.Stop());
+        menuTasks.forEach((n, t) -> t.Start());
+    }
+
+    void resume() {
+        menuTasks.forEach((n, t) -> t.Stop());
+        gameTasks.forEach((n, t) -> t.Start());
+    }
+
     @Override
     public void run() {
         while (true) {
@@ -43,30 +53,20 @@ public class Game extends Pane implements Runnable {
         }
     }
 
-    void pause() {
-        gameTasks.forEach((n, t) -> t.Stop());
-        menuTasks.forEach((n, t) -> t.Start());
-    }
-
-    void resume() {
-        menuTasks.forEach((n, t) -> t.Stop());
-        gameTasks.forEach((n, t) -> t.Start());
-    }
-
     void addTask(String name, RepetitiveTask rt, boolean game) {
         if (game) gameTasks.put(name, rt);
         else menuTasks.put(name, rt);
     }
 
-    private void addTask(String name, double seconds, Task task, boolean game) {
+    void addTask(String name, double seconds, Task task, boolean game) {
         RepetitiveTask rt = new RepetitiveTask(seconds, task);
         if (game) gameTasks.put(name, rt);
         else menuTasks.put(name, rt);
     }
 
-    public void increaseLevel(int level) {
+    public void setLevel(int level) {
         RepetitiveTask rt = gameTasks.get("updateGameHandler");
-        rt.setSeconds(perSecond(2 + Math.sqrt(2*level)));
+        rt.setSeconds(perSecond(2 + 1.5*Math.sqrt(level)));
         gameHandler.setLevel(level);
     }
 }

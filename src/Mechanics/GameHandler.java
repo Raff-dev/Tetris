@@ -19,11 +19,15 @@ public class GameHandler {
 
 
     public void init() {
+        if (activeBlock != null)
+            activeBlock.getTiles().forEach(t -> game.getChildren().remove(t.getTile()));
+        occupied.removeIf(t -> game.getChildren().removeAll(t.getTile()));
         activeBlock = new Block();
         activeBlock.showOn(game);
         nextBlock = new Block();
-        sideBar.setNextBlock(nextBlock);
+        score=level=lines=0;
         sideBar.setValues(score, level, lines);
+        sideBar.setNextBlock(nextBlock);
     }
 
     public void update() {
@@ -36,12 +40,12 @@ public class GameHandler {
     }
 
     void rotate() {
-        if (activeBlock.rotate())soundHandler.playSound(blockRotate);
+        if (activeBlock.rotate()) soundHandler.playSound(blockRotate);
         else soundHandler.playSound(denied);
     }
 
     void fall() {
-        if (activeBlock.getY() > Tile.side){
+        if (activeBlock.getY() > Tile.side) {
             while (activeBlock.canMoveY()) activeBlock.moveY();
             activeBlock.moveY();
         }
@@ -61,8 +65,8 @@ public class GameHandler {
         });
         int linesCleared = clearLines(yLookFor);
         soundHandler.playSound(blockLanded);
-        if (linesCleared==4) soundHandler.playSound(lineClear);
-        else if (linesCleared>0)soundHandler.playSound(lineClear);
+        if (linesCleared == 4) soundHandler.playSound(lineClear);
+        else if (linesCleared > 0) soundHandler.playSound(lineClear);
     }
 
     private int clearLines(TreeSet<Integer> yLookFor) {
@@ -91,7 +95,7 @@ public class GameHandler {
     private void updateSideBar(int count) {
         lines += count;
         score += 100 * count * (level + count * 0.5);
-        if (lines % 10 == 0) game.increaseLevel(++level);
+        if (lines % 10 == 0) game.setLevel(++level);
         sideBar.setValues(score, lines, level);
     }
 
@@ -100,13 +104,7 @@ public class GameHandler {
         System.out.println("GAME OVER");
     }
 
-    public void reset() {
-        activeBlock.getTiles().forEach(t -> game.getChildren().remove(t.getTile()));
-        occupied.removeIf(t -> game.getChildren().removeAll(t.getTile()));
-        init();
-    }
-
-    Color getActiveBlockColor(){
+    Color getActiveBlockColor() {
         if (activeBlock == null) return null;
         return activeBlock.getColor();
     }
