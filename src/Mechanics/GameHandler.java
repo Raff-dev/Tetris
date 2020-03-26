@@ -1,6 +1,5 @@
 package Mechanics;
 
-import Display.RepetitiveTask;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -28,8 +27,8 @@ public class GameHandler {
     public void start() {
         gameOver = false;
         if (activeBlock != null)
-            activeBlock.getTiles().forEach(t -> game.getChildren().remove(t.getTile()));
-        occupied.removeIf(t -> game.getChildren().removeAll(t.getTile()));
+            activeBlock.getTiles().forEach(t -> game.getChildren().remove(t.getBg()));
+        occupied.removeIf(t -> game.getChildren().removeAll(t.getBg()));
         activeBlock = new Block();
         activeBlock.showOn(game);
         nextBlock = new Block();
@@ -66,7 +65,6 @@ public class GameHandler {
             tr.setToY(game.getTranslateY() + 5);
             tr.setInterpolator(Interpolator.EASE_IN);
             tr.setToX(new Random().nextInt(10) - 5);
-            System.out.println(game.getTranslateX());
             tr.setOnFinished((e) -> {
                 TranslateTransition tr2 = new TranslateTransition(new Duration(50), game);
                 tr2.setToY(0);
@@ -74,7 +72,6 @@ public class GameHandler {
                 tr2.play();
             });
             tr.play();
-            System.out.println(game.getTranslateX());
         }
     }
 
@@ -109,7 +106,7 @@ public class GameHandler {
         });
         if (toRemove.size() > 0) {
             for (int i = 0; i < toRemove.size(); i++) {
-                FadeTransition ft = new FadeTransition(new Duration(50), toRemove.get(i).getTile());
+                FadeTransition ft = new FadeTransition(new Duration(50), toRemove.get(i).getBg());
                 ft.setToValue(0);
                 if (i+1 == toRemove.size()) ft.setOnFinished((e) -> {
                     toRemove.forEach(t -> t.removeFrom(game));
@@ -142,6 +139,9 @@ public class GameHandler {
 
     public Block getActiveBlock() {
         return activeBlock;
+    }
+    public Block getNextBlock() {
+        return nextBlock;
     }
 
     Color getActiveBlockColor() {

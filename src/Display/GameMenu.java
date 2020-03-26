@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static Display.Colors.Palette.Vatican;
 import static Display.GameMenu.ButtonName.*;
 import static Display.GameMenu.Mode.*;
 import static Display.SoundHandler.Sound.*;
@@ -153,18 +154,25 @@ public class GameMenu extends StackPane {
     }
 
     public void changeColorPalette() {
-        Collections.rotate(colorChoices, 1);
-        getButton(Color_palette).setText("Color palette: " + colorChoices.get(0));
-        gameHandler.getOccupied().forEach(t -> {
-            for (int i = 0; i < colors.getActive().size(); i++)
-                if (t.getTile().getFill() == colors.getActive().get(i))
-                    t.getTile().setFill(colors.getPalette(colorChoices.get(0)).get(i));
-        });
-        colors.setActive(colorChoices.get(0));
-        floaties.forEach(f -> f.setColor(colors.getRandom()));
+        Collections.rotate(colorChoices, -1);
+        Colors.Palette paletteName = colorChoices.get(0);
+        getButton(Color_palette).setText("Color palette: " + paletteName);
+        colors.setActive(paletteName);
+
+        TileTask tileTask;
+        if (paletteName == Colors.Palette.WAT) tileTask = (t) -> t.WATify();
+        else if (paletteName == Vatican) tileTask = (t) -> {
+            t.deWATify();
+            t.getBlock().setColor(colors.getRandom());
+        };
+        else tileTask = (t) -> t.getBlock().setColor(colors.getRandom());
+
+        gameHandler.getOccupied().forEach(t -> tileTask.execute(t));
+        floaties.forEach(f -> f.getTiles().forEach(t -> tileTask.execute(t)));
         if (mode == PAUSE) {
-            gameHandler.getActiveBlock().setColor(colors.getRandom());
-            sideBar.getNextBlock().setColor(colors.getRandom());
+            gameHandler.getActiveBlock().getTiles().forEach(t -> tileTask.execute(t));
+            gameHandler.getNextBlock().getTiles().forEach(t -> tileTask.execute(t));
+            sideBar.getNextBlock().getTiles().forEach(t -> tileTask.execute(t));
         }
     }
 
@@ -227,13 +235,32 @@ public class GameMenu extends StackPane {
         fromY = random.nextInt(2) * (maxDist + safeBuffer) - safeBuffer;
         toY = Math.abs(fromY - maxDist) - safeBuffer;
 
-        Block.BlockType bt = Block.BlockType.atRandom();
-        Color c = colors.getRandom();
-        Block floatie = new Block(bt.width() / 2, bt.height() / 2, bt, c);
-        floaties.add(floatie);
         Pane p = new BorderPane();
+        Block.BlockType bt = Block.BlockType.atRandom();
+        Block floatie = new Block(bt.width() / 2, bt.height() / 2, bt, colors.getRandom());
+        floaties.add(floatie);
         floatie.showOn(p);
-        floatiesContainer.getChildren().add(p);
+        if (colorChoices.get(0) == Vatican) {
+            if (!isVaticancheek)
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(3000);
+                        game.addTask("JP2", 1, () -> makeFloaties(), true);
+                        isVaticancheek = true;
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            else {
+                floatie.vaticancheek(p);
+                game.getChildren().add(p);
+            }
+        } else {
+            isVaticancheek=false;
+            game.removeTask("JP2", true);
+            floatiesContainer.getChildren().add(p);
+        }
+
         TranslateTransition tr = new TranslateTransition(new Duration(timeMs), p);
         RotateTransition rt = new RotateTransition(new Duration(timeMs), p);
         rt.setToAngle(rotation);
@@ -257,6 +284,8 @@ public class GameMenu extends StackPane {
         });
         tr.play();
     }
+
+    private boolean isVaticancheek = false;
 
     private void moveButtons(int to, List<MenuItem> items, Task task) {
         for (int i = 0; i < items.size(); i++) {

@@ -1,13 +1,15 @@
 package Mechanics;
 
 import Display.Game;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
+import java.nio.file.Paths;
 import java.util.*;
 
-import static Display.Window.colors;
-import static Display.Window.gameHandler;
+import static Display.Window.*;
 
 public class Block {
     private ArrayList<Tile> tiles = new ArrayList<>();
@@ -45,7 +47,7 @@ public class Block {
     }
 
     public void showOn(Pane pane) {
-        tiles.forEach(t -> pane.getChildren().add(t.getTile()));
+        tiles.forEach(t -> pane.getChildren().addAll(t.getBg(),t));
         isShown = true;
     }
 
@@ -105,7 +107,6 @@ public class Block {
                     if (ocuppied || boundaries) {
                         if (canMoveX(1)) moveX(1);
                         else {
-                            System.out.println("cant, bruh");
                             tiles = backupTiles;
                             x = backupX;
                             for (Tile tile : this.tiles) tile.move();
@@ -157,6 +158,17 @@ public class Block {
             return this.rotation;
         }
     }
+    public void vaticancheek(Pane p) {
+        sideBar.setLevelText(2137);
+        tiles.forEach(t->t.getBg().setOpacity(0));
+        int i = new Random().nextInt(2);
+        Image image = new Image(Paths.get("src/resources/images/papaj"+i+".png").toUri().toString());
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(120);
+        imageView.setFitWidth(120);
+        imageView.setPreserveRatio(true);
+        p.getChildren().add(imageView);
+    }
 
     public void removeFrom(Pane pane) {
         tiles.forEach(t -> t.removeFrom(pane));
@@ -166,7 +178,7 @@ public class Block {
         return this.blockType;
     }
 
-    ArrayList<Tile> getTiles() {
+    public ArrayList<Tile> getTiles() {
         return this.tiles;
     }
 
@@ -176,7 +188,7 @@ public class Block {
 
     public void setColor(Color color) {
         this.color = color;
-        tiles.forEach(t -> t.getTile().setFill(color));
+        tiles.forEach(t -> t.getBg().setFill(color));
     }
 
     int getX() {

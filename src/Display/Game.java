@@ -65,8 +65,8 @@ public class Game extends Pane implements Runnable {
     }
 
     public void removeTask(String name, boolean game) {
-        if (game) gameTasks.remove(name);
-        else menuTasks.remove(name);
+        if (game && gameTasks.containsKey(name)) gameTasks.remove(name);
+        else if (menuTasks.containsKey(name)) menuTasks.remove(name);
     }
 
     public void setLevel(int level) {

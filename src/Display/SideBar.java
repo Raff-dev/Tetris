@@ -48,6 +48,10 @@ public class SideBar extends VBox {
         return boxes.get("Next").content.nextBlock;
     }
 
+    public void setLevelText(int level){
+       if(boxes.containsKey("Level")) boxes.get("Level").content.setVal(level);
+    }
+
     //----------------------------------------------------------
     public static class BarBox extends VBox {
         Text text = new Text();

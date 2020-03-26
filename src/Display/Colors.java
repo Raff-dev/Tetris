@@ -6,9 +6,9 @@ import java.util.*;
 
 public class Colors {
 
-    enum Palette {Classic, Tritanopia, Tropical, Garden, Sunset}
+    public enum Palette {Classic, Tritanopia, Tropical, Garden, Sunset,WAT,Vatican}
 
-    private Map<Palette, ArrayList<Color>> colorMap = new HashMap<>();
+    private static Map<Palette, ArrayList<Color>> colorMap = new HashMap<>();
     private static ArrayList<Color> active = new ArrayList<>();
     private static ArrayList<Color> classic = new ArrayList<>(Arrays.asList(
             Color.rgb(102, 153, 255),
@@ -45,6 +45,61 @@ public class Colors {
             Color.rgb(180, 84, 118),
             Color.rgb(205, 92, 92)
     ));
+    private static ArrayList<Color> wat = new ArrayList<>(Arrays.asList(
+            Color.rgb(250, 142, 130),
+            Color.rgb(250, 142, 130),
+            Color.rgb(237, 149, 142),
+            Color.rgb(247, 214, 25),
+            Color.rgb(247, 214, 25),
+            Color.rgb(99, 208, 224),
+            Color.rgb(99, 208, 224),
+            Color.rgb(230, 154, 195),
+            Color.rgb(230, 154, 195),
+            Color.rgb(179, 255, 217),
+            Color.rgb(179, 255, 217),
+            Color.rgb(174, 234, 252),
+            Color.rgb(174, 234, 252),
+            Color.rgb(113, 245, 223),
+            Color.rgb(113, 245, 223),
+            Color.rgb(255, 238, 128),
+            Color.rgb(255, 238, 128),
+            Color.rgb(205, 127, 219),
+            Color.rgb(205, 127, 219),
+            Color.rgb(39, 196, 81),
+            Color.rgb(39, 196, 81),
+            Color.rgb(39, 196, 81)
+    ));
+    private static ArrayList<Color> vatican = new ArrayList<>(Arrays.asList(
+            Color.rgb(63, 81, 113),
+            Color.rgb(98, 85, 129),
+            Color.rgb(141, 84, 132),
+            Color.rgb(180, 84, 118),
+            Color.rgb(205, 92, 92)
+    ));
+    public static List<List<String>> watBlock = new ArrayList<>(Arrays.asList(
+            Arrays.asList("Bpe", "(W)", "Do"),
+            Arrays.asList("Bpe", "(L)", "Rd"),
+            Arrays.asList("Bzs", "(W)", "Sza"),
+            Arrays.asList("IO", "(W)", "Bl"),
+            Arrays.asList("IO", "(L)", "BąP"),
+            Arrays.asList("Jtp", "(W)", "PK"),
+            Arrays.asList("Jtp", "(L)", "PK"),
+            Arrays.asList("MM", "(W)", "Ch"),
+            Arrays.asList("MM", "(ć)", "MK"),
+            Arrays.asList("Oin", "(W)", "RJ"),
+            Arrays.asList("Oin", "(ć)", "RJ"),
+            Arrays.asList("Pw", "(W)", "Rul"),
+            Arrays.asList("Pw", "(L)", "Rul"),
+            Arrays.asList("Pz", "(W)", "Mur"),
+            Arrays.asList("Pz", "(ć)", "Mur"),
+            Arrays.asList("Sck", "(W)", "SkL"),
+            Arrays.asList("Sck", "(L)", "Kwoj"),
+            Arrays.asList("Swb", "(W)", "Mu"),
+            Arrays.asList("Swb", "(L)", "Mi"),
+            Arrays.asList("Swk", "(W)", "Ar"),
+            Arrays.asList("Swk", "(L)", "Ka"),
+            Arrays.asList("Swk", "(ć)", "Tu")
+    ));
 
     Colors() {
         active.addAll(classic);
@@ -53,13 +108,15 @@ public class Colors {
         colorMap.put(Palette.Tropical, tropical);
         colorMap.put(Palette.Garden, garden);
         colorMap.put(Palette.Sunset, sunset);
+        colorMap.put(Palette.WAT, wat);
+        colorMap.put(Palette.Vatican, vatican);
     }
 
     public Color getRandom() {
         return active.get(new Random().nextInt(active.size()));
     }
 
-    ArrayList<Color> getPalette(Colors.Palette palette) {
+    public static ArrayList<Color> getPalette(Colors.Palette palette) {
         return colorMap.get(palette);
     }
 
