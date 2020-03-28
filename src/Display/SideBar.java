@@ -40,11 +40,10 @@ public class SideBar extends VBox {
     }
 
     public void setNextBlock(Block block) {
-        while (block.getBlockType().getRotation() != 0) block.rotate();
-        boxes.get("Next").content.setNextBlock(block.getBlockType(), block.getColor());
+        boxes.get("Next").content.setNextBlock(block);
     }
 
-    Block getNextBlock() {
+    public Block getNextBlock() {
         return boxes.get("Next").content.nextBlock;
     }
 
@@ -85,9 +84,14 @@ public class SideBar extends VBox {
                 this.val.setText(Integer.toString(val));
             }
 
-            void setNextBlock(Block.BlockType blockType, Color color) {
+            void setNextBlock(Block nextBlock) {
+                while (nextBlock.getBlockType().getRotation() != 0) nextBlock.rotate();
+                Block.BlockType blockType = nextBlock.getBlockType();
+                int width = blockType.width();
+                int height = blockType.height();
+                Color color = nextBlock.getColor();
                 if (this.nextBlock != null) this.nextBlock.removeFrom(blockPane);
-                this.nextBlock = new Block((int) (WIDTH * 0.5 + blockType.width() * 0.5), (int) (side * 1.5 + blockType.height() * 0.5), blockType, color);
+                this.nextBlock =  new Block((int) (WIDTH * 0.5 + width * 0.5), (int) (side * 1.5 +height * 0.5), blockType, color);
                 this.nextBlock.showOn(blockPane);
             }
         }

@@ -1,15 +1,13 @@
 package Mechanics;
 
+import static Display.Window.*;
+
+import Display.BlockTask;
 import Display.Game;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-import java.nio.file.Paths;
 import java.util.*;
-
-import static Display.Window.*;
 
 public class Block {
     private ArrayList<Tile> tiles = new ArrayList<>();
@@ -47,8 +45,12 @@ public class Block {
     }
 
     public void showOn(Pane pane) {
-        tiles.forEach(t -> pane.getChildren().addAll(t.getBg(),t));
+        tiles.forEach(t -> pane.getChildren().addAll(t.getBg(), t));
         isShown = true;
+    }
+
+    public void removeFrom(Pane pane) {
+        tiles.removeIf(t -> t.removeFrom(pane));
     }
 
     void moveX(int dir) {
@@ -85,13 +87,12 @@ public class Block {
         int rows = bt.layout.length - 1;
         int cols = bt.layout[0].length - 1;
         int[][] newlayout = new int[cols + 1][rows + 1];
-        for (int row = 0; row <= rows; row++) {
-            for (int col = 0; col <= cols; col++) {
+        for (int row = 0; row <= rows; row++)
+            for (int col = 0; col <= cols; col++)
                 newlayout[col][rows - row] = bt.layout[row][col];
-            }
-        }
+
         ArrayList<Tile> backupTiles = new ArrayList<>();
-        for (Tile tile : tiles) backupTiles.add(tile.copy());
+        tiles.forEach(t-> backupTiles.add(t.copy()));
         Iterator<Tile> titer = tiles.iterator();
         int offsetX, offsetY = 0, backupX = x;
         for (int[] row : newlayout) {
@@ -121,6 +122,9 @@ public class Block {
         this.blockType.rotate();
         return true;
     }
+
+
+
 
     public enum BlockType {
         Orange_Ricky(new int[][]{{0, 0, 1}, {1, 1, 1}}),
@@ -158,21 +162,6 @@ public class Block {
             return this.rotation;
         }
     }
-    public void vaticancheek(Pane p) {
-        sideBar.setLevelText(2137);
-        tiles.forEach(t->t.getBg().setOpacity(0));
-        int i = new Random().nextInt(2);
-        Image image = new Image(Paths.get("src/resources/images/papaj"+i+".png").toUri().toString());
-        ImageView imageView = new ImageView(image);
-        imageView.setFitHeight(120);
-        imageView.setFitWidth(120);
-        imageView.setPreserveRatio(true);
-        p.getChildren().add(imageView);
-    }
-
-    public void removeFrom(Pane pane) {
-        tiles.forEach(t -> t.removeFrom(pane));
-    }
 
     public BlockType getBlockType() {
         return this.blockType;
@@ -191,11 +180,21 @@ public class Block {
         tiles.forEach(t -> t.getBg().setFill(color));
     }
 
-    int getX() {
+    public void setX(int x) {
+        this.x = x;
+        tiles.forEach(t -> t.move());
+    }
+
+    public void setY(int y) {
+        this.y = y;
+        tiles.forEach(t -> t.move());
+    }
+
+    public int getX() {
         return this.x;
     }
 
-    int getY() {
+    public int getY() {
         return this.y;
     }
 }

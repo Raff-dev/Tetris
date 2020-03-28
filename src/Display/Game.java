@@ -1,10 +1,13 @@
 package Display;
 
+import DLC.DLC;
 import Mechanics.Tile;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.paint.Color;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Hashtable;
 
 import static Display.RepetitiveTask.perSecond;
@@ -15,8 +18,18 @@ public class Game extends Pane implements Runnable {
     private Hashtable<String, RepetitiveTask> gameTasks = new Hashtable<>();
     private Hashtable<String, RepetitiveTask> menuTasks = new Hashtable<>();
     private boolean running = false;
+    private enum dlcs {Vaticancheek,WATIFY}
 
     void init() {
+        Arrays.asList(dlcs.values()).forEach(dlc -> {
+            try {
+                Class.forName("DLC." + String.valueOf(dlc)).getConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException |
+                    InvocationTargetException | NoSuchMethodException |
+                    ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
         running = true;
         drawMesh();
         addTask("updateGameHandler", perSecond(3.0), gameHandler::update, true);
@@ -66,7 +79,7 @@ public class Game extends Pane implements Runnable {
 
     public void removeTask(String name, boolean game) {
         if (game && gameTasks.containsKey(name)) gameTasks.remove(name);
-        else if (menuTasks.containsKey(name)) menuTasks.remove(name);
+        else menuTasks.remove(name);
     }
 
     public void setLevel(int level) {

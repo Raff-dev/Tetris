@@ -2,8 +2,6 @@ package Mechanics;
 
 import Display.Colors;
 import Display.Game;
-import javafx.animation.FadeTransition;
-import javafx.animation.FillTransition;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -13,67 +11,27 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.util.Duration;
 
 import java.util.*;
 
-import static Display.Colors.watBlock;
+import static DLC.WATIFY.watBlock;
 import static Display.Window.gameHandler;
 import static javafx.scene.paint.Color.*;
 
 public class Tile extends BorderPane {
     public static int side = 50;
-    private Block block;
     private Rectangle bg = new Rectangle(side, side);
+    private Block block;
     private int offsetX, offsetY;
-    private static boolean isWatified = false;
     private Color watColor;
 
     Tile(int offsetX, int offsetY, Block block) {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         setBlock(block);
-        WATinit();
     }
 
-    private HashMap<List<String>, Color> watBlocks = new HashMap<>();
 
-
-    private void WATinit(){
-        VBox textBox = new VBox();
-        int index = new Random().nextInt(watBlock.size());
-        watColor = Colors.getPalette(Colors.Palette.WAT).get(index);
-        for (String info:watBlock.get(index)){
-            Text t = new Text(info);
-            t.setFont(Font.font(12));
-            t.setTextAlignment(TextAlignment.CENTER);
-            t.setFill(BLACK);
-            t.setTranslateX(Tile.side * 0.5);
-            textBox.getChildren().add(t);
-        }
-        textBox.setAlignment(Pos.TOP_CENTER);
-        relocate(block.getX() + offsetX, block.getY() + offsetY);
-        setOpacity(0);
-        getChildren().add(textBox);
-        if (isWatified) WATify();
-
-    }
-    public void WATify() {
-        isWatified=true;
-        FadeTransition ft = new FadeTransition(new Duration(100),this);
-        ft.setToValue(1);
-        ft.play();
-        FillTransition fit = new FillTransition(new Duration(100),bg);
-        fit.setToValue(watColor);
-        fit.play();
-
-    }
-    public void deWATify(){
-        isWatified=false;
-        FadeTransition ft = new FadeTransition(new Duration(100),this);
-        ft.setToValue(0);
-        ft.play();
-    }
 
     boolean cantMove(int dir) {
         int x = getX(), y = getY();
@@ -93,7 +51,8 @@ public class Tile extends BorderPane {
     }
 
     static boolean isOcuppied(int x, int y) {
-        return gameHandler.getOccupied().stream().anyMatch(t -> t.getX() == x && t.getY() == y);
+        return gameHandler.getOccupied().stream().anyMatch(b->b.getTiles()
+                .stream().anyMatch(t->t.getY()==y&&t.getX()==x));
     }
 
     void move() {
@@ -106,10 +65,9 @@ public class Tile extends BorderPane {
         this.move();
     }
 
-    void removeFrom(Pane pane) {
-        pane.getChildren().remove(bg);
-        pane.getChildren().remove(this);
-        gameHandler.getOccupied().remove(this);
+    boolean removeFrom(Pane pane) {
+        pane.getChildren().removeAll(bg, this);
+        return true;
     }
 
     void setOffset(int offsetX, int offsetY) {
@@ -140,6 +98,14 @@ public class Tile extends BorderPane {
 
     int getY() {
         return this.block.getY() + offsetY;
+    }
+
+    public int getOffsetX() {
+        return offsetX;
+    }
+
+    public int getOffsetY() {
+        return offsetY;
     }
 
     public Rectangle getBg() {
