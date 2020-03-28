@@ -3,6 +3,8 @@ package Mechanics;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
@@ -11,41 +13,43 @@ import static Display.Window.*;
 
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class GameHandler {
-    private ArrayList<Tile> occupied = new ArrayList<>();
+    private ArrayList<Block> occupied = new ArrayList<>();
     private boolean gameOver;
-    private Block activeBlock;
-    private Block nextBlock;
+    private ObservableList<Block> activeBlocks = FXCollections.observableArrayList();
     private int startLevel;
     private int level;
     private int score;
     private int lines;
 
+
     public void start() {
         gameOver = false;
-        if (activeBlock != null)
-            activeBlock.getTiles().forEach(t -> game.getChildren().remove(t.getBg()));
-        occupied.removeIf(t -> game.getChildren().removeAll(t.getBg()));
-        activeBlock = new Block();
-        activeBlock.showOn(game);
-        nextBlock = new Block();
+        if (!activeBlocks.isEmpty())
+            activeBlock().getTiles().forEach(t -> game.getChildren().removeAll(t, t.getBg()));
+        occupied.forEach(b -> {
+            b.removeFrom(game);
+            b.getTiles().clear();
+        });
+        occupied.clear();
+        activeBlocks.clear();
+        activeBlocks.addAll(new Block(), new Block());
+        activeBlock().showOn(game);
         score = lines = 0;
         level = startLevel;
         game.setLevel(level);
         sideBar.setValues(score, lines, level);
-        sideBar.setNextBlock(nextBlock);
+        sideBar.setNextBlock(nextBlock());
     }
 
-    public void update() {
-        activeBlock.moveY();
+    void update() {
+        if (!gameOver) activeBlock().moveY();
     }
 
     void move(int dir) {
-        if (dir == 0) game.addTask("Move" + dir, 0.05, () -> activeBlock.moveY(), true);
-        else game.addTask("Move" + dir, 0.05, () -> activeBlock.moveX(dir), true);
+        if (dir == 0) game.addTask("Move" + dir, 0.05, () -> activeBlock().moveY(), true);
+        else game.addTask("Move" + dir, 0.05, () -> activeBlock().moveX(dir), true);
     }
 
     void unMove(int dir) {
@@ -53,14 +57,14 @@ public class GameHandler {
     }
 
     void rotate() {
-        if (activeBlock.rotate()) soundHandler.playSound(blockRotate);
+        if (activeBlock().rotate()) soundHandler.playSound(blockRotate);
         else soundHandler.playSound(denied);
     }
 
     void fall() {
-        if (activeBlock.getY() > Tile.side) {
-            while (activeBlock.canMoveY()) activeBlock.moveY();
-            activeBlock.moveY();
+        if (activeBlock().getY() > Tile.side) {
+            while (activeBlock().canMoveY()) activeBlock().moveY();
+            activeBlock().moveY();
             TranslateTransition tr = new TranslateTransition(new Duration(50), game);
             tr.setToY(game.getTranslateY() + 5);
             tr.setInterpolator(Interpolator.EASE_IN);
@@ -77,18 +81,19 @@ public class GameHandler {
 
     void blockLanded(Block block) {
         if (gameOver) return;
-        activeBlock = nextBlock;
-        activeBlock.showOn(game);
-        nextBlock = new Block();
-        sideBar.setNextBlock(nextBlock);
-        if (!activeBlock.canMoveY()) gameOver();
-        TreeSet<Integer> yLookFor = new TreeSet<>();
-        block.getTiles().forEach(t -> {
-            occupied.add(t);
-            yLookFor.add(t.getY());
-        });
-        int linesCleared = clearLines(yLookFor);
+        occupied.add(block);
         soundHandler.playSound(blockLanded);
+        activeBlocks.remove(activeBlock());
+        activeBlocks.add(new Block());
+        sideBar.setNextBlock(nextBlock());
+        activeBlock().setY(0);
+        activeBlock().setX(Game.WIDTH / 2 + Tile.side);
+        activeBlock().showOn(game);
+
+        if (!activeBlock().canMoveY()) gameOver();
+        TreeSet<Integer> yLookFor = new TreeSet<>();
+        block.getTiles().forEach(t -> yLookFor.add(t.getY()));
+        int linesCleared = clearLines(yLookFor);
         if (linesCleared == 4) soundHandler.playSound(lineClear);
         else if (linesCleared > 0) soundHandler.playSound(lineClear);
     }
@@ -97,27 +102,29 @@ public class GameHandler {
         List<Tile> toRemove = new ArrayList<>();
         TreeSet<Integer> yDelete = new TreeSet<>();
         yLookFor.descendingSet().forEach(y -> {
-            Stream<Tile> rowStream = occupied.stream().filter(t -> t.getY() == y);
-            List<Tile> row = rowStream.collect(Collectors.toList());
+            List<Tile> row = new ArrayList<>();
+            occupied.forEach(b -> b.getTiles().stream()
+                    .filter(t -> t.getY() == y).forEach(row::add));
             if (row.size() == 10) {
                 toRemove.addAll(row);
                 yDelete.add(y);
             }
         });
-        if (toRemove.size() > 0) {
-            for (int i = 0; i < toRemove.size(); i++) {
-                FadeTransition ft = new FadeTransition(new Duration(50), toRemove.get(i).getBg());
-                ft.setToValue(0);
-                if (i+1 == toRemove.size()) ft.setOnFinished((e) -> {
-                    toRemove.forEach(t -> t.removeFrom(game));
-                    yDelete.forEach(y -> occupied.stream()
-                            .filter(t -> t.getY() < y).forEach(Tile::fall));
+        if (toRemove.size() == 0) return 0;
+        for (int i = 0; i < toRemove.size(); i++) {
+            FadeTransition ft = new FadeTransition(new Duration(50), toRemove.get(i).getBg());
+            ft.setToValue(0);
+            if (i + 1 == toRemove.size()) ft.setOnFinished((e) -> {
+                toRemove.forEach(t -> {
+                    t.removeFrom(game);
+                    t.getBlock().getTiles().remove(t);
                 });
-                ft.play();
-            }
-            updateSideBar(yDelete.size());
-            return yDelete.size();
+                yDelete.forEach(y -> occupied.forEach(b -> b.getTiles().stream()
+                        .filter(t -> t.getY() < y).forEach(Tile::fall)));
+            });
+            ft.play();
         }
+        updateSideBar(yDelete.size());
         return yDelete.size();
     }
 
@@ -128,33 +135,39 @@ public class GameHandler {
         sideBar.setValues(score, lines, level);
     }
 
+    private void gameOver() {
+        System.out.println("GAME OVER");
+        gameOver = true;
+    }
+
     public void setStartLevel(int startLevel) {
         this.startLevel = startLevel;
     }
 
-    private void gameOver() {
-        gameOver = true;
-        System.out.println("GAME OVER");
+    public Block activeBlock() {
+        if (activeBlocks.isEmpty()) return null;
+        return activeBlocks.get(0);
     }
 
-    public Block getActiveBlock() {
-        return activeBlock;
-    }
-    public Block getNextBlock() {
-        return nextBlock;
+    public Block nextBlock() {
+        return activeBlocks.get(1);
     }
 
     Color getActiveBlockColor() {
-        if (activeBlock == null) return null;
-        return activeBlock.getColor();
+        if (activeBlocks.isEmpty()) return null;
+        return activeBlock().getColor();
     }
 
     Block.BlockType getActiveBlockBlockType() {
-        if (activeBlock == null) return null;
-        return activeBlock.getBlockType();
+        if (activeBlock() == null) return null;
+        return activeBlock().getBlockType();
     }
 
-    public ArrayList<Tile> getOccupied() {
+    public ObservableList<Block> getActiveBlocks() {
+        return activeBlocks;
+    }
+
+    public ArrayList<Block> getOccupied() {
         return occupied;
     }
 }

@@ -6,7 +6,7 @@ import javafx.scene.media.MediaPlayer;
 import java.nio.file.Paths;
 
 public class SoundHandler {
-    private double volume = 0.5;
+    private double volume = 0.4;
 
     public enum Sound {init, denied, buttonHover, buttonSelect, blockRotate, blockLanded, lineClear}
 

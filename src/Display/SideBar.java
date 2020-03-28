@@ -1,5 +1,6 @@
 package Display;
 
+import Mechanics.Game;
 import Mechanics.Block;
 import Mechanics.Tile;
 import javafx.geometry.Pos;
@@ -16,7 +17,6 @@ import java.util.Hashtable;
 public class SideBar extends VBox {
     private static int side = Tile.side;
     private static int WIDTH = Window.WIDTH - Game.WIDTH;
-    private static int HEIGHT = Window.HEIGHT - Game.HEIGHT;
     private Hashtable<String, BarBox> boxes = new Hashtable<>();
 
     void init() {
@@ -40,16 +40,15 @@ public class SideBar extends VBox {
     }
 
     public void setNextBlock(Block block) {
-        while (block.getBlockType().getRotation() != 0) block.rotate();
-        boxes.get("Next").content.setNextBlock(block.getBlockType(), block.getColor());
+        boxes.get("Next").content.setNextBlock(block);
     }
 
     Block getNextBlock() {
         return boxes.get("Next").content.nextBlock;
     }
 
-    public void setLevelText(int level){
-       if(boxes.containsKey("Level")) boxes.get("Level").content.setVal(level);
+    public void setLevelText(int level) {
+        if (boxes.containsKey("Level")) boxes.get("Level").content.setVal(level);
     }
 
     //----------------------------------------------------------
@@ -85,9 +84,15 @@ public class SideBar extends VBox {
                 this.val.setText(Integer.toString(val));
             }
 
-            void setNextBlock(Block.BlockType blockType, Color color) {
+            void setNextBlock(Block nextBlock) {
+                while (nextBlock.getBlockType().getRotation() != 0) nextBlock.rotate();
+                Block.BlockType blockType = nextBlock.getBlockType();
+                int width = blockType.width();
+                int height = blockType.height();
                 if (this.nextBlock != null) this.nextBlock.removeFrom(blockPane);
-                this.nextBlock = new Block((int) (WIDTH * 0.5 + blockType.width() * 0.5), (int) (side * 1.5 + blockType.height() * 0.5), blockType, color);
+                this.nextBlock = nextBlock;
+                nextBlock.setX((int) (WIDTH * 0.5 + width * 0.5));
+                nextBlock.setY((int) (side * 1.5 + height * 0.5));
                 this.nextBlock.showOn(blockPane);
             }
         }

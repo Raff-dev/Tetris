@@ -1,5 +1,6 @@
-package Display;
+package Mechanics;
 
+import Mechanics.Task;
 import javafx.application.Platform;
 
 import java.util.function.BooleanSupplier;
@@ -19,10 +20,10 @@ public class RepetitiveTask implements Task {
 
     RepetitiveTask(boolean active, double seconds) {
         this.active = active;
-        this.seconds=seconds;
+        this.seconds = seconds;
     }
 
-        RepetitiveTask(double seconds, Task task) {
+    RepetitiveTask(double seconds, Task task) {
         this.task = task;
         this.seconds = seconds;
     }
@@ -37,9 +38,10 @@ public class RepetitiveTask implements Task {
         }
     }
 
-    void setTask(Task task){
+    void setTask(Task task) {
         this.task = task;
     }
+
     void setStopCondition(BooleanSupplier bs) {
         this.stopCondition = bs;
     }
