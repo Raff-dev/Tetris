@@ -1,7 +1,7 @@
 package Display;
 
 import DLC.DLC;
-import DLC.WATIFY;
+import Mechanics.Game;
 import Mechanics.GameHandler;
 import Mechanics.InputHandler;
 import Mechanics.Tile;
@@ -10,6 +10,8 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class Window extends Application {
     static int WIDTH = 15 * Tile.side, HEIGHT = 20 * Tile.side;
@@ -24,7 +26,7 @@ public class Window extends Application {
     public static final SoundHandler soundHandler = new SoundHandler();
 
     @Override
-    public void start(final Stage stage) {
+    public void start(final Stage stage) throws IOException, ClassNotFoundException {
         stage.setScene(scene);
         stage.setTitle(("Tetris"));
         stage.setOnCloseRequest(e -> {

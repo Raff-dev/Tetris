@@ -2,13 +2,13 @@ package Display;
 
 import Bindings.ButtonBindings;
 import Mechanics.Block;
+import Mechanics.Task;
 import Mechanics.Tile;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -40,15 +40,13 @@ public class GameMenu extends StackPane {
     private List<MenuItem> activeButtons = new ArrayList<>();
     private List<MenuItem> primaryButtons = new ArrayList<>();
     private List<MenuItem> secondaryButtons = new ArrayList<>();
-    private ObservableList<String> colorChoices =
-            FXCollections.observableList(colors.getPalette());
+    private ObservableList<String> colorChoices = FXCollections.observableList(colors.getPalette());
 
     public enum Mode {START, PAUSE, RUNNING}
 
     public enum ButtonName {Play, Settings, Volume, Size, Color_palette, Change_level, Easy, Medium, Hard, Restart, Resume, Quit}
 
     GameMenu() {
-        colorChoices.addAll(colors.getPalette());
         setProperties();
         ButtonBindings.bind();
         getChildren().addAll(bg, floatiesContainer, primaryItems, secondaryItems);
@@ -127,7 +125,7 @@ public class GameMenu extends StackPane {
     }
 
     public void startGame(int level) {
-        if (!game.isRunning()) {
+        if (!game.isInitialized()) {
             game.init();
             sideBar.init();
         }
@@ -162,16 +160,13 @@ public class GameMenu extends StackPane {
         getButton(Color_palette).setText("Color palette: " + paletteName);
         colors.setActive(paletteName);
 
-        BlockTask blockTask;
-        blockTask = (b) -> b.setColor(colors.getRandom());
-
         new Thread(() -> Platform.runLater(() -> {
-            gameHandler.getOccupied().forEach(b -> blockTask.execute(b));
-            floaties.forEach(f -> blockTask.execute(f));
+            gameHandler.getOccupied().forEach(b -> b.setColor(colors.getRandom()));
+            floaties.forEach(f -> f.setColor(colors.getRandom()));
             if (mode == PAUSE) {
-                blockTask.execute(gameHandler.activeBlock());
-                blockTask.execute(gameHandler.nextBlock());
-                blockTask.execute(sideBar.getNextBlock());
+                gameHandler.activeBlock().setColor(colors.getRandom());
+                gameHandler.nextBlock().setColor(colors.getRandom());
+                sideBar.getNextBlock().setColor(colors.getRandom());
             }
         })).start();
     }
@@ -222,16 +217,16 @@ public class GameMenu extends StackPane {
         }).start();
     }
 
-    private Node makeFloatie() {
+    private Pane makeFloatie() {
         Block.BlockType bt = Block.BlockType.atRandom();
         Block floatie = new Block(bt.width() / 2, bt.height() / 2, bt, colors.getRandom());
         floaties.add(floatie);
-        Pane p = new BorderPane();
-        floatie.showOn(p);
-        return p;
+        Pane floatieBox = new BorderPane();
+        floatie.showOn(floatieBox);
+        return floatieBox;
     }
 
-    public void goFloaty(Node node, Pane pane) {
+    public void goFloaty(Pane floatieBox, Pane pane) {
         int safeBuffer = 4 * Tile.side;
         int maxDist = Math.max(WIDTH, HEIGHT) + safeBuffer;
         Random random = new Random();
@@ -242,8 +237,8 @@ public class GameMenu extends StackPane {
         double timeMs = random.nextInt(4000) + 5000;
         double rotation = random.nextInt(500) + 360;
 
-        TranslateTransition tr = new TranslateTransition(new Duration(timeMs), node);
-        RotateTransition rt = new RotateTransition(new Duration(timeMs), node);
+        TranslateTransition tr = new TranslateTransition(new Duration(timeMs), floatieBox);
+        RotateTransition rt = new RotateTransition(new Duration(timeMs), floatieBox);
         rt.setToAngle(rotation);
         rt.play();
 
@@ -258,11 +253,14 @@ public class GameMenu extends StackPane {
             tr.setToX(toY);
             tr.setToY(toX);
         }
-        pane.getChildren().add(node);
+        pane.getChildren().add(floatieBox);
         tr.setInterpolator(Interpolator.LINEAR);
         tr.setOnFinished((event) -> {
-            pane.getChildren().remove(node);
-            floaties.remove(node);
+            pane.getChildren().remove(floatieBox);
+            if (floatieBox.getChildren().get(floatieBox.getChildren().size() - 1).getClass().getName().equals("Mechanics.Tile")) {
+                Tile t = (Tile) floatieBox.getChildren().get(1);
+                floaties.remove(t.getBlock());
+            }
         });
         tr.play();
     }

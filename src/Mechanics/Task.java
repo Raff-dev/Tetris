@@ -1,6 +1,4 @@
-package Display;
-
-import Mechanics.Tile;
+package Mechanics;
 
 public interface Task {
     void execute();

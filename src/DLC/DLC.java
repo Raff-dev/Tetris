@@ -1,17 +1,22 @@
 package DLC;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.*;
 
 public class DLC {
+    private enum dlcs {WATIFY,Vaticancheek}
 
-    //public static WATIFY watify;
-
-
-    public DLC() {
-        //watify = new WATIFY();
-        //Vaticancheek v = new Vaticancheek();
-
+    public DLC() throws IOException, ClassNotFoundException {
+        Arrays.asList(dlcs.values()).forEach(dlc -> {
+            try {
+                Class.forName("DLC." +dlc+"."+ dlc).getConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException |
+                    InvocationTargetException | NoSuchMethodException |
+                    ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
 
     }
-}
+    }

@@ -2,8 +2,6 @@ package Mechanics;
 
 import static Display.Window.*;
 
-import Display.BlockTask;
-import Display.Game;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
@@ -26,7 +24,7 @@ public class Block {
 
     Block() {
         this.x = Game.WIDTH / 2 + Tile.side;
-        this.y = -0;
+        this.y = 0;
         do color = colors.getRandom();
         while (color == gameHandler.getActiveBlockColor());
         do blockType = BlockType.atRandom();
@@ -50,7 +48,7 @@ public class Block {
     }
 
     public void removeFrom(Pane pane) {
-        tiles.removeIf(t -> t.removeFrom(pane));
+        tiles.forEach(t -> t.removeFrom(pane));
     }
 
     void moveX(int dir) {
@@ -123,9 +121,6 @@ public class Block {
         return true;
     }
 
-
-
-
     public enum BlockType {
         Orange_Ricky(new int[][]{{0, 0, 1}, {1, 1, 1}}),
         Blue_Ricky(new int[][]{{1, 0, 0}, {1, 1, 1}}),
@@ -171,7 +166,7 @@ public class Block {
         return this.tiles;
     }
 
-    public Color getColor() {
+    Color getColor() {
         return this.color;
     }
 

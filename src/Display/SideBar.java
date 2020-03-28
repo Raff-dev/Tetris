@@ -1,5 +1,6 @@
 package Display;
 
+import Mechanics.Game;
 import Mechanics.Block;
 import Mechanics.Tile;
 import javafx.geometry.Pos;
@@ -16,7 +17,6 @@ import java.util.Hashtable;
 public class SideBar extends VBox {
     private static int side = Tile.side;
     private static int WIDTH = Window.WIDTH - Game.WIDTH;
-    private static int HEIGHT = Window.HEIGHT - Game.HEIGHT;
     private Hashtable<String, BarBox> boxes = new Hashtable<>();
 
     void init() {
@@ -43,12 +43,12 @@ public class SideBar extends VBox {
         boxes.get("Next").content.setNextBlock(block);
     }
 
-    public Block getNextBlock() {
+    Block getNextBlock() {
         return boxes.get("Next").content.nextBlock;
     }
 
-    public void setLevelText(int level){
-       if(boxes.containsKey("Level")) boxes.get("Level").content.setVal(level);
+    public void setLevelText(int level) {
+        if (boxes.containsKey("Level")) boxes.get("Level").content.setVal(level);
     }
 
     //----------------------------------------------------------
@@ -89,9 +89,10 @@ public class SideBar extends VBox {
                 Block.BlockType blockType = nextBlock.getBlockType();
                 int width = blockType.width();
                 int height = blockType.height();
-                Color color = nextBlock.getColor();
                 if (this.nextBlock != null) this.nextBlock.removeFrom(blockPane);
-                this.nextBlock =  new Block((int) (WIDTH * 0.5 + width * 0.5), (int) (side * 1.5 +height * 0.5), blockType, color);
+                this.nextBlock = nextBlock;
+                nextBlock.setX((int) (WIDTH * 0.5 + width * 0.5));
+                nextBlock.setY((int) (side * 1.5 + height * 0.5));
                 this.nextBlock.showOn(blockPane);
             }
         }

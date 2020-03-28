@@ -1,5 +1,6 @@
 package Display;
 
+import Mechanics.Task;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.scene.layout.StackPane;
@@ -20,15 +21,15 @@ public class MenuItem extends StackPane implements Task {
     public MenuItem(GameMenu.ButtonName name, Task task) {
         this.name = name;
         this.task = task;
-        text.setText(String.valueOf(name).replace("_"," "));
+        text.setText(String.valueOf(name).replace("_", " "));
         setDefault();
         setTranslateX(WIDTH);
         getChildren().addAll(bg, text);
     }
 
     void setDefault() {
-        FadeTransition ft = new FadeTransition(new Duration(50),this);
-        ScaleTransition st = new ScaleTransition(new Duration(50),this);
+        FadeTransition ft = new FadeTransition(new Duration(50), this);
+        ScaleTransition st = new ScaleTransition(new Duration(50), this);
         ft.setToValue(0.8);
         ft.play();
         st.setToX(1);
@@ -42,16 +43,13 @@ public class MenuItem extends StackPane implements Task {
     }
 
     void setHovered() {
-        FadeTransition ft = new FadeTransition(new Duration(100),this);
-        ScaleTransition st = new ScaleTransition(new Duration(100),this);
+        FadeTransition ft = new FadeTransition(new Duration(100), this);
+        ScaleTransition st = new ScaleTransition(new Duration(100), this);
         ft.setToValue(1);
         st.setToX(1.2);
         st.setToY(1.2);
         st.play();
         ft.play();
-
-       // bg.setHeight(70);
-        //text.setFont(Font.font(50));
     }
 
     void setText(String text) {

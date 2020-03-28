@@ -1,37 +1,21 @@
 package Mechanics;
 
-import Display.Colors;
-import Display.Game;
-import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-
-import java.util.*;
-
-import static DLC.WATIFY.watBlock;
 import static Display.Window.gameHandler;
-import static javafx.scene.paint.Color.*;
 
 public class Tile extends BorderPane {
     public static int side = 50;
     private Rectangle bg = new Rectangle(side, side);
     private Block block;
     private int offsetX, offsetY;
-    private Color watColor;
 
     Tile(int offsetX, int offsetY, Block block) {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         setBlock(block);
     }
-
-
 
     boolean cantMove(int dir) {
         int x = getX(), y = getY();
@@ -65,9 +49,8 @@ public class Tile extends BorderPane {
         this.move();
     }
 
-    boolean removeFrom(Pane pane) {
+    void removeFrom(Pane pane) {
         pane.getChildren().removeAll(bg, this);
-        return true;
     }
 
     void setOffset(int offsetX, int offsetY) {
@@ -88,10 +71,6 @@ public class Tile extends BorderPane {
         return newTile;
     }
 
-    public static void setSide(int side) {
-        Tile.side = side;
-    }
-
     int getX() {
         return this.block.getX() + offsetX;
     }
@@ -108,7 +87,7 @@ public class Tile extends BorderPane {
         return offsetY;
     }
 
-    public Rectangle getBg() {
+    Rectangle getBg() {
         return bg;
     }
 

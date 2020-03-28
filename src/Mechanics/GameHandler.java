@@ -1,11 +1,9 @@
 package Mechanics;
 
-import Display.BlockTask;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
-import javafx.beans.Observable;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -15,37 +13,38 @@ import static Display.Window.*;
 
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class GameHandler {
     private ArrayList<Block> occupied = new ArrayList<>();
     private boolean gameOver;
-    private ObservableList<Block> activeBlocks;
+    private ObservableList<Block> activeBlocks = FXCollections.observableArrayList();
     private int startLevel;
     private int level;
     private int score;
     private int lines;
 
 
-
     public void start() {
         gameOver = false;
         if (!activeBlocks.isEmpty())
             activeBlock().getTiles().forEach(t -> game.getChildren().removeAll(t, t.getBg()));
-        occupied.forEach(b -> b.removeFrom(game));
+        occupied.forEach(b -> {
+            b.removeFrom(game);
+            b.getTiles().clear();
+        });
         occupied.clear();
-        activeBlocks.addAll(new Block(),new Block());
+        activeBlocks.clear();
+        activeBlocks.addAll(new Block(), new Block());
         activeBlock().showOn(game);
         score = lines = 0;
         level = startLevel;
         game.setLevel(level);
         sideBar.setValues(score, lines, level);
-        sideBar.setNextBlock(activeBlock());
+        sideBar.setNextBlock(nextBlock());
     }
 
-    public void update() {
-        activeBlock().moveY();
+    void update() {
+        if (!gameOver) activeBlock().moveY();
     }
 
     void move(int dir) {
@@ -86,9 +85,12 @@ public class GameHandler {
         soundHandler.playSound(blockLanded);
         activeBlocks.remove(activeBlock());
         activeBlocks.add(new Block());
-        activeBlock().showOn(game);
-        if (!activeBlock().canMoveY()) gameOver();
         sideBar.setNextBlock(nextBlock());
+        activeBlock().setY(0);
+        activeBlock().setX(Game.WIDTH / 2 + Tile.side);
+        activeBlock().showOn(game);
+
+        if (!activeBlock().canMoveY()) gameOver();
         TreeSet<Integer> yLookFor = new TreeSet<>();
         block.getTiles().forEach(t -> yLookFor.add(t.getY()));
         int linesCleared = clearLines(yLookFor);
@@ -101,8 +103,8 @@ public class GameHandler {
         TreeSet<Integer> yDelete = new TreeSet<>();
         yLookFor.descendingSet().forEach(y -> {
             List<Tile> row = new ArrayList<>();
-            occupied.forEach(b->b.getTiles().stream()
-                    .filter(t->t.getY()==y).forEach(row::add));
+            occupied.forEach(b -> b.getTiles().stream()
+                    .filter(t -> t.getY() == y).forEach(row::add));
             if (row.size() == 10) {
                 toRemove.addAll(row);
                 yDelete.add(y);
@@ -117,7 +119,7 @@ public class GameHandler {
                     t.removeFrom(game);
                     t.getBlock().getTiles().remove(t);
                 });
-                yDelete.forEach(y -> occupied.forEach(b->b.getTiles().stream()
+                yDelete.forEach(y -> occupied.forEach(b -> b.getTiles().stream()
                         .filter(t -> t.getY() < y).forEach(Tile::fall)));
             });
             ft.play();
@@ -134,14 +136,16 @@ public class GameHandler {
     }
 
     private void gameOver() {
-        gameOver = true;
         System.out.println("GAME OVER");
+        gameOver = true;
     }
+
     public void setStartLevel(int startLevel) {
         this.startLevel = startLevel;
     }
 
     public Block activeBlock() {
+        if (activeBlocks.isEmpty()) return null;
         return activeBlocks.get(0);
     }
 
@@ -150,7 +154,7 @@ public class GameHandler {
     }
 
     Color getActiveBlockColor() {
-        if (activeBlock() == null) return null;
+        if (activeBlocks.isEmpty()) return null;
         return activeBlock().getColor();
     }
 
@@ -159,7 +163,7 @@ public class GameHandler {
         return activeBlock().getBlockType();
     }
 
-    public ObservableList<Block>getActiveBlocks(){
+    public ObservableList<Block> getActiveBlocks() {
         return activeBlocks;
     }
 

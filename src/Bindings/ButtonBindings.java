@@ -1,6 +1,5 @@
 package Bindings;
 
-import Display.GameMenu.*;
 import Display.MenuItem;
 
 import static Display.GameMenu.ButtonName.*;

@@ -6,8 +6,8 @@ import java.util.*;
 
 public class Colors {
 
-private List<String> Palette = new ArrayList<>(
-        Arrays.asList("Classic", "Tritanopia", "Tropical", "Garden", "WAT", "Vatican"));
+    private List<String> Palette = new ArrayList<>(
+            Arrays.asList("Classic", "Tritanopia", "Tropical", "Garden", "Vatican"));
     private static Map<String, ArrayList<Color>> colorMap = new HashMap<>();
     private static ArrayList<Color> active = new ArrayList<>();
     private static ArrayList<Color> classic = new ArrayList<>(Arrays.asList(
@@ -49,7 +49,6 @@ private List<String> Palette = new ArrayList<>(
 
 
     Colors() {
-        System.out.println("colors");
         active.addAll(classic);
         colorMap.put("Classic", classic);
         colorMap.put("Tritanopia", tritanopia);
@@ -69,10 +68,6 @@ private List<String> Palette = new ArrayList<>(
     void setActive(String palette) {
         active.clear();
         active.addAll(colorMap.get(palette));
-    }
-
-    ArrayList<Color> getActive() {
-        return active;
     }
 
     public List<String> getPalette() {
