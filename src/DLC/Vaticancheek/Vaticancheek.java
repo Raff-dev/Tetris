@@ -1,6 +1,5 @@
 package DLC.Vaticancheek;
 
-import DLC.DLC;
 import javafx.collections.ListChangeListener;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,7 +14,6 @@ import static Display.Window.game;
 public class Vaticancheek {
 
     public Vaticancheek() {
-        colors.getPalette().add("Vatican");
         gameMenu.getColorChoices().addListener(
                 (ListChangeListener<String>) change -> {
                     String paletteName = gameMenu.getColorChoices().get(0);

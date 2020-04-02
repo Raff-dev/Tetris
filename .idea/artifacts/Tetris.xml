@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="Tetris">
+    <output-path>$PROJECT_DIR$/out/artifacts/Tetris</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="Display.Window" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="Tetris.jar">
+        <element id="module-output" name="Tetris" />
+      </element>
+    </root>
+  </artifact>
+</component>
