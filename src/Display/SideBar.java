@@ -14,11 +14,19 @@ import javafx.scene.text.Text;
 
 import java.util.Hashtable;
 
+/**
+ * SideBar class is responsible for the display of game state,
+ * which includes graphical display of score, lines that had been cleared
+ * by the player, as well as the current game difficulty.
+ */
 public class SideBar extends VBox {
     private static int side = Tile.side;
     private static int WIDTH = Window.WIDTH - Game.WIDTH;
     private Hashtable<String, BarBox> boxes = new Hashtable<>();
 
+    /**
+     * Initializes the sidebar and adds all the needed items.
+     */
     void init() {
         getChildren().clear();
         setProperties();
@@ -33,6 +41,12 @@ public class SideBar extends VBox {
         setSpacing(25);
     }
 
+    /**
+     * updates text values
+     * @param score count of points that the player had obtained
+     * @param lines count of lines that had been cleaned
+     * @param level game difficulty level to be set on label
+     */
     public void setValues(int score, int lines, int level) {
         boxes.get("Score").content.setVal(score);
         boxes.get("Lines").content.setVal(lines);
@@ -51,7 +65,10 @@ public class SideBar extends VBox {
         if (boxes.containsKey("Level")) boxes.get("Level").content.setVal(level);
     }
 
-    //----------------------------------------------------------
+    /**
+     * BarBox helps organise the sidebar contents.
+     * It consists of background and content label.
+     */
     public static class BarBox extends VBox {
         Text text = new Text();
         BoxContent content = new BoxContent();
@@ -64,7 +81,10 @@ public class SideBar extends VBox {
             getChildren().addAll(text, content);
         }
 
-        //----------------------------------------------------------
+        /**
+         * BoxContent helps organise the sidebar contents.
+         * It contains the value of a given sidebar object.
+         */
         static class BoxContent extends StackPane {
             Rectangle bg = new Rectangle(WIDTH, side * 3);
             Text val = new Text();
@@ -84,6 +104,11 @@ public class SideBar extends VBox {
                 this.val.setText(Integer.toString(val));
             }
 
+            /**
+             * Changes the display of next Tetromino (the Tetris block)
+             * that has yet to come.
+             * @param nextBlock the block that should be displayed on the sidebar.
+             */
             void setNextBlock(Block nextBlock) {
                 while (nextBlock.getBlockType().getRotation() != 0) nextBlock.rotate();
                 Block.BlockType blockType = nextBlock.getBlockType();
@@ -97,5 +122,4 @@ public class SideBar extends VBox {
             }
         }
     }
-
 }

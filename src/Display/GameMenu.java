@@ -27,6 +27,13 @@ import static Display.SoundHandler.Sound.*;
 import static Display.Window.*;
 import static javafx.scene.paint.Color.*;
 
+/**
+ * Main menu class, which is responsible for behaviour of the program
+ * regarding to user interaction while the game is not started or is paused.
+ * Menu allows user to switch selection between MenuItems,
+ * which are an integral part of it.
+ * @author Rafal Lazicki
+ */
 public class GameMenu extends StackPane {
     private static Mode mode = START;
     private static Rectangle bg = new Rectangle(Window.WIDTH, Window.HEIGHT);
@@ -46,6 +53,13 @@ public class GameMenu extends StackPane {
 
     public enum ButtonName {Play, Settings, Volume, Size, Color_palette, Change_level, Easy, Medium, Hard, Restart, Resume, Quit}
 
+
+    /**
+     * Game menu constructor takes care of events that need to be executed just at the start of the program.
+     * In this block of code, every button shall be assigned a specified function.
+     * Moreover, background animations are being started.
+     *
+     */
     GameMenu() {
         setProperties();
         ButtonBindings.bind();
@@ -53,6 +67,11 @@ public class GameMenu extends StackPane {
         game.addTask("Floaties", 1, () -> goFloaty(makeFloatie(), floatiesContainer), false);
     }
 
+    /**
+     * Init function organises the buttons that should be displayed.
+     * Moves primary buttons to the front of the screen and enables
+     * switching selection between the set of chosen ones.
+     */
     void init() {
         selection = buttons.get(0);
         selection.setHovered();
@@ -62,6 +81,9 @@ public class GameMenu extends StackPane {
         moveButtons(0, primaryButtons, null);
     }
 
+    /**
+     * Sets basic visual appearance settings of the items that the menu contains.
+     */
     private void setProperties() {
         this.setPrefSize(WIDTH, HEIGHT);
         bg.setFill(WHITE);
@@ -71,6 +93,10 @@ public class GameMenu extends StackPane {
         secondaryItems.setAlignment(Pos.CENTER);
     }
 
+    /**
+     * Sets the set of buttons that user can choose from and interact with.
+     * @param newButtons the set of buttons to be set as interactive at the moment.
+     */
     private void setActiveButtons(List<MenuItem> newButtons) {
         activeButtons.forEach(b -> b.setDefault());
         activeButtons.clear();
@@ -79,6 +105,10 @@ public class GameMenu extends StackPane {
         selection.setHovered();
     }
 
+    /**
+     * Moves additional buttons to the front, and makes them interactive.
+     * @param newButtons the set of buttons that extend interacted object
+     */
     public void extendWith(List<MenuItem> newButtons) {
         secondaryItems.getChildren().clear();
         secondaryButtons.addAll(newButtons);
@@ -87,6 +117,10 @@ public class GameMenu extends StackPane {
         moveButtons(-WIDTH, primaryButtons, null);
     }
 
+    /**
+     * Moves the items that previous selection was extended with, but only if they were,
+     * out of the screen and allows primary ones to be selectable back again.
+     */
     private void closeExtension() {
         if (secondaryButtons.size() == 0) return;
         moveButtons(0, primaryButtons, () -> setActiveButtons(primaryButtons));
@@ -96,6 +130,10 @@ public class GameMenu extends StackPane {
         });
     }
 
+    /**
+     * Sets the button that should be selected
+     * @param dir direction according to which the selection should be changed.
+     */
     public void switchSelection(int dir) {
         soundHandler.playSound(buttonHover);
         selection.setDefault();
@@ -104,6 +142,9 @@ public class GameMenu extends StackPane {
         selection.setHovered();
     }
 
+    /**
+     * Executes functions assigned to the currently selected button.
+     */
     public void select() {
         buttons.stream().filter(b -> b == selection).findFirst().get().execute();
         soundHandler.playSound(buttonSelect);
@@ -118,12 +159,20 @@ public class GameMenu extends StackPane {
         else soundHandler.playSound(denied);
     }
 
+    /**
+     * Toggles program state, and proceeds to run code depending on the state.
+     * This function can either start the game, close or show menu.
+     */
     public void toggleMenu() {
         if (mode == START) closeExtension();
         else if (mode == PAUSE) resume();
         else if (mode == RUNNING) pause();
     }
 
+    /**
+     * Initialises the game with given difficulty level and displays appropriate animations.
+     * @param level difficulty level, at which the game should be started on.
+     */
     public void startGame(int level) {
         if (!game.isInitialized()) {
             game.init();
@@ -147,6 +196,9 @@ public class GameMenu extends StackPane {
         ft.play();
     }
 
+    /**
+     * Changes the program's sound volume.
+     */
     public void changeVolume() {
         int volume = soundHandler.getVolume();
         volume = (volume + 10) % 110;
@@ -154,6 +206,10 @@ public class GameMenu extends StackPane {
         soundHandler.setVolume(volume);
     }
 
+    /**
+     * Rotates color palette array and changes color appearance
+     * of specified objects, depending on palette's color set.
+     */
     public void changeColorPalette() {
         Collections.rotate(colorChoices, -1);
         String paletteName = colorChoices.get(0);
@@ -171,6 +227,9 @@ public class GameMenu extends StackPane {
         })).start();
     }
 
+    /**
+     * Switches state of the program and displays specified animations.
+     */
     private static void pause() {
         mode = PAUSE;
         bg.setOpacity(0.3);
@@ -180,7 +239,9 @@ public class GameMenu extends StackPane {
         ft.play();
         game.pause();
     }
-
+    /**
+     * Switches state of the program and displays specified animations.
+     */
     public static void resume() {
         mode = RUNNING;
         FadeTransition ft = new FadeTransition(new Duration(200), gameMenu);
@@ -198,6 +259,9 @@ public class GameMenu extends StackPane {
         resume();
     }
 
+    /**
+     * Displays quit animation and closes the program.
+     */
     public void quit() {
         FillTransition fit = new FillTransition(new Duration(1200), bg);
         FadeTransition fat = new FadeTransition(new Duration(1000), floatiesContainer);
@@ -217,6 +281,10 @@ public class GameMenu extends StackPane {
         }).start();
     }
 
+    /**
+     * Creates a 'floatie' object, which intention is to look nice in the background of the menu.
+     * @return a floatie
+     */
     private Pane makeFloatie() {
         Block.BlockType bt = Block.BlockType.atRandom();
         Block floatie = new Block(bt.width() / 2, bt.height() / 2, bt, colors.getRandom());
@@ -226,6 +294,12 @@ public class GameMenu extends StackPane {
         return floatieBox;
     }
 
+    /**
+     * Makes a 'floatie' float (move) on the given canvas and assignes its route,
+     * as well as rotation speed and velocity.
+     * @param floatieBox a canvas that contains all the 'floates'.
+     * @param pane 'floatie' object, which behaviour will be determined.
+     */
     public void goFloaty(Pane floatieBox, Pane pane) {
         int safeBuffer = 4 * Tile.side;
         int maxDist = Math.max(WIDTH, HEIGHT) + safeBuffer;
@@ -265,6 +339,12 @@ public class GameMenu extends StackPane {
         tr.play();
     }
 
+    /**
+     * Animates movement of the given items, and executes the task afterwards.
+     * @param to designation point on X axis
+     * @param items items that shall be moved
+     * @param task task that shall be executed right after the animation finishes
+     */
     private void moveButtons(int to, List<MenuItem> items, Task task) {
         for (int i = 0; i < items.size(); i++) {
             TranslateTransition tr = new TranslateTransition();
@@ -278,6 +358,11 @@ public class GameMenu extends StackPane {
         if (task != null) task.execute();
     }
 
+    /**
+     * Searches for the given MenuItems contained by the menu using their names and returns them.
+     * @param names names of the wanted MenuItems
+     * @return List of MenuItems, which matched the parameters.
+     */
     public List<MenuItem> getButtons(ButtonName... names) {
         Stream<MenuItem> buttonsStream = buttons.stream().filter(
                 b -> Arrays.asList(names).contains(b.name));

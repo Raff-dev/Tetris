@@ -8,6 +8,10 @@ import static javafx.scene.input.KeyEvent.KEY_RELEASED;
 
 import java.util.*;
 
+/**
+ * Handles all the behaviour of user interactions at the basic level with the program.
+ * @author Rafal Lazicki
+ */
 public class InputHandler {
     private Map<Object, Task> gamePressBindings = new HashMap<>();
     private Map<Object, Task> releaseBindings = new HashMap<>();
@@ -18,6 +22,9 @@ public class InputHandler {
         listen();
     }
 
+    /**
+     * Maps all the specified behaviour assigned to certain keyboard buttons.
+     */
     private void assignBindings() {
         gamePressBindings.put(ESCAPE, gameMenu::toggleMenu);
         gamePressBindings.put(SPACE, () -> gameHandler.fall());
@@ -40,6 +47,10 @@ public class InputHandler {
         menuBindings.put(RIGHT, () -> gameMenu.rightArrow());
     }
 
+    /**
+     * Adds event listeners to the program, witch fire whenever
+     * specified actions are taken by the user.
+     */
     private void listen() {
         scene.addEventFilter(KEY_PRESSED, event -> {
             if (gameMenu.getMode() == RUNNING && gamePressBindings.containsKey(event.getCode()))

@@ -4,6 +4,10 @@ import javafx.scene.paint.Color;
 
 import java.util.*;
 
+/**
+ * Colors class contains all the available colors in the program.
+ * It is used to obtain random colors to fill the game and menu objects.
+ */
 public class Colors {
 
     private List<String> Palette = new ArrayList<>(
@@ -47,7 +51,10 @@ public class Colors {
             Color.rgb(205, 92, 92)
     ));
 
-
+    /**
+     * Assignment of names to the specified color arrays.
+     * This makes sets of colors more accessible.
+     */
     Colors() {
         active.addAll(classic);
         colorMap.put("Classic", classic);

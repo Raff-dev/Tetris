@@ -12,6 +12,12 @@ import javafx.util.Duration;
 import static Display.Window.WIDTH;
 import static javafx.scene.paint.Color.*;
 
+/**
+ * MenuItem is an integral part of Menu.
+ * MenuItems are mainly buttons that can be interacted with,
+ * therefore they have a name, that is displayed in the menu,
+ * and a specified behaviour, that can be executed upon selection.
+ */
 public class MenuItem extends StackPane implements Task {
     GameMenu.ButtonName name;
     private Task task;
@@ -27,6 +33,10 @@ public class MenuItem extends StackPane implements Task {
         getChildren().addAll(bg, text);
     }
 
+    /**
+     * Changes the MenuItem's visual appearance to default
+     * and displays associated animations.
+     */
     void setDefault() {
         FadeTransition ft = new FadeTransition(new Duration(50), this);
         ScaleTransition st = new ScaleTransition(new Duration(50), this);
@@ -42,6 +52,10 @@ public class MenuItem extends StackPane implements Task {
         text.setFill(WHITE);
     }
 
+    /**
+     * Changes the MenuItem's visual appearance to hovered upon selection
+     * and displays associated animations.
+     */
     void setHovered() {
         FadeTransition ft = new FadeTransition(new Duration(100), this);
         ScaleTransition st = new ScaleTransition(new Duration(100), this);

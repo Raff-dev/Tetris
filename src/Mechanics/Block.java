@@ -6,7 +6,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import java.util.*;
-
+/**
+ * Represents a single Tetromino block which consists of multiple Tiles.
+ * This class is responsible for mechanics connected to the behaviour of a Tetromino block.
+ */
 public class Block {
     private ArrayList<Tile> tiles = new ArrayList<>();
     private BlockType blockType;
@@ -14,6 +17,12 @@ public class Block {
     private int x, y;
     private static boolean isShown = false;
 
+    /**
+     * @param x x axis coordinate of the application
+     * @param y y axis coordinate of the application
+     * @param blockType type of block that should be created
+     * @param color color of the block
+     */
     public Block(int x, int y, BlockType blockType, Color color) {
         this.x = x;
         this.y = y;
@@ -22,6 +31,10 @@ public class Block {
         tiles.addAll(generateTiles(this));
     }
 
+    /**
+     * This constructor spawns a Block game object which will be steered by the player
+     * It's placed in the middle of game area, with a random block type and color.
+     */
     Block() {
         this.x = Game.WIDTH / 2 + Tile.side;
         this.y = 0;
@@ -33,6 +46,10 @@ public class Block {
         canMoveY();
     }
 
+    /**
+     * @param block Block, which representation shall be created with Tiles
+     * @return List of Tiles organised in such a fashion that it represents one of Tetromino blocks.
+     */
     private static ArrayList<Tile> generateTiles(Block block) {
         ArrayList<Tile> newTiles = new ArrayList<>();
         for (int row = 0; row < block.blockType.layout.length; row++)
@@ -42,11 +59,19 @@ public class Block {
         return newTiles;
     }
 
+    /**
+     * Displays the block on a given Node
+     * @param pane Node to display the block on
+     */
     public void showOn(Pane pane) {
         tiles.forEach(t -> pane.getChildren().addAll(t.getBg(), t));
         isShown = true;
     }
 
+    /**
+     * Removes the block from a given Node
+     * @param pane Node to remove the block from
+     */
     public void removeFrom(Pane pane) {
         tiles.forEach(t -> t.removeFrom(pane));
     }
@@ -80,6 +105,10 @@ public class Block {
         gameHandler.blockLanded(this);
     }
 
+    /**
+     * Rotates the block 90 degrees, only if its possible.
+     * @return boolean value representing whether the block was able to rotate
+     */
     public boolean rotate() {
         BlockType bt = this.blockType;
         int rows = bt.layout.length - 1;
@@ -101,7 +130,7 @@ public class Block {
                 if (isPresent == 1) {
                     Tile t = titer.next();
                     t.setOffset(-offsetX, -offsetY);
-                    boolean ocuppied = Tile.isOcuppied(t.getX(), t.getY());
+                    boolean ocuppied = Tile.isOccuppied(t.getX(), t.getY());
                     boolean boundaries = t.getX() == -Tile.side || t.getX() == Game.WIDTH;
                     if (ocuppied || boundaries) {
                         if (canMoveX(1)) moveX(1);
@@ -121,6 +150,10 @@ public class Block {
         return true;
     }
 
+    /**
+     * Consists of every possible type of block and their arrangement.
+     * Holds the information about certain block's parameters and its rotation.
+     */
     public enum BlockType {
         Orange_Ricky(new int[][]{{0, 0, 1}, {1, 1, 1}}),
         Blue_Ricky(new int[][]{{1, 0, 0}, {1, 1, 1}}),

@@ -7,7 +7,17 @@ import static Display.GameMenu.ButtonName.*;
 import static Display.GameMenu.*;
 import static Display.Window.gameMenu;
 
+/**
+ * Class containing all the button creations.
+ * @author Rafal Lazicki
+ */
 public class ButtonBindings {
+
+    /**
+     * Creates MenuItem buttons with specified names and functions,
+     * that they represented after being interacted with and adds them
+     * to the Menu's buttons array list.
+     */
     public static void bind() {
         buttons.add(new MenuItem(Play,
                 () -> gameMenu.extendWith(gameMenu.getButtons(Easy, Medium, Hard))));

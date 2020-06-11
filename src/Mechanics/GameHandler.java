@@ -14,6 +14,10 @@ import static Display.Window.*;
 import java.util.*;
 import java.util.List;
 
+/**
+ * Handles all the game logic and connects single objects' behaviour with Tetris rules.
+ * @author Rafal Lazicki
+ */
 public class GameHandler {
     private ArrayList<Block> occupied = new ArrayList<>();
     private boolean gameOver;
@@ -23,7 +27,11 @@ public class GameHandler {
     private int score;
     private int lines;
 
-
+    /**
+     * Clears the game board.
+     * Resets game status information.
+     * Creates a new steerable Tetris block.
+     */
     public void start() {
         gameOver = false;
         if (!activeBlocks.isEmpty())
@@ -43,24 +51,44 @@ public class GameHandler {
         sideBar.setNextBlock(nextBlock());
     }
 
+    /**
+     * Single tick of game logic.
+     * Runs with frequency specified by the current game difficulty level.
+     */
     void update() {
         if (!gameOver) activeBlock().moveY();
     }
 
+    /**
+     * Changes position of the active block, that is beeing steered by the player.
+     * @param dir direction according to which the active block shall be moved.
+     */
     void move(int dir) {
         if (dir == 0) game.addTask("Move" + dir, 0.05, () -> activeBlock().moveY(), true);
         else game.addTask("Move" + dir, 0.05, () -> activeBlock().moveX(dir), true);
     }
 
+    /**
+     * Stops the active block from moving.
+     * @param dir direction which identifies the repetitive task
+     *           responsible for active block movement
+     */
     void unMove(int dir) {
         game.removeTask("Move" + dir, true);
     }
 
+
+    /**
+     * Rotates active block 90 degrees. Plays appropriate sound.
+     */
     void rotate() {
         if (activeBlock().rotate()) soundHandler.playSound(blockRotate);
         else soundHandler.playSound(denied);
     }
 
+    /**
+     * Makes the active block fall quickly until it has landed.
+     */
     void fall() {
         if (activeBlock().getY() > Tile.side) {
             while (activeBlock().canMoveY()) activeBlock().moveY();
@@ -79,6 +107,14 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Checks for the game over.
+     * Clears the lines if appropriate conditions are met.
+     * Plays block landing sound.
+     * Generates next steerable block.
+     * @param block block that has hit the very bottom
+     *              of game board or another bloc from up top.
+     */
     void blockLanded(Block block) {
         if (gameOver) return;
         occupied.add(block);
@@ -98,6 +134,12 @@ public class GameHandler {
         else if (linesCleared > 0) soundHandler.playSound(lineClear);
     }
 
+    /**
+     *
+     * @param yLookFor Set of y coordinates, on which the program should
+     *                check whether the conditions of clearing line are met.
+     * @return count of lines that had been cleared.
+     */
     private int clearLines(TreeSet<Integer> yLookFor) {
         List<Tile> toRemove = new ArrayList<>();
         TreeSet<Integer> yDelete = new TreeSet<>();
@@ -128,6 +170,11 @@ public class GameHandler {
         return yDelete.size();
     }
 
+    /**
+     * updates sidebar with current game status informations.
+     * Calculates count of points, with which the player should be awarded with.
+     * @param count of cleared lines.
+     */
     private void updateSideBar(int count) {
         score += 100 * count * (level + count * 0.5);
         for (int i = 0; i < count; i++)
@@ -135,6 +182,9 @@ public class GameHandler {
         sideBar.setValues(score, lines, level);
     }
 
+    /**
+     * Sets the state of the game to game over.
+     */
     private void gameOver() {
         System.out.println("GAME OVER");
         gameOver = true;

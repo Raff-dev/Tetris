@@ -13,6 +13,11 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Window class is responsible for initialization of most
+ * of the program's components and the graphical display itself.
+ * @author Rafal Lazicki
+ */
 public class Window extends Application {
     static int WIDTH = 15 * Tile.side, HEIGHT = 20 * Tile.side;
     public static final Colors colors = new Colors();
@@ -25,8 +30,13 @@ public class Window extends Application {
     public static final GameHandler gameHandler = new GameHandler();
     public static final SoundHandler soundHandler = new SoundHandler();
 
+    /**
+     * Start function initializes the graphical interface with specified settings
+     * and starts the menu and game's thread .
+     * @param stage JavaFX application object required for the display of the program.
+     */
     @Override
-    public void start(final Stage stage) throws IOException, ClassNotFoundException {
+    public void start(final Stage stage) {
         stage.setScene(scene);
         stage.setTitle(("Tetris"));
         stage.setOnCloseRequest(e -> {
@@ -39,7 +49,11 @@ public class Window extends Application {
         new DLC();
     }
 
-    public static void main(final String[] args) {
+/**
+ * Main function takes care of launching the JavaFX application
+ * @param args any arguments passed to the program execution.
+*/
+ public static void main(final String[] args) {
         launch(args);
     }
 }
